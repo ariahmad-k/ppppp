@@ -5,6 +5,7 @@ include '../backend/koneksi.php';
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['cart_data'])) {
     $nama_pemesan = trim($_POST['nama_pemesan']);
     $no_telepon = trim($_POST['no_telepon']);
+    $catatan = trim($_POST['catatan'] ?? '');
     $cart_data = json_decode($_POST['cart_data'], true);
 
     if (empty($nama_pemesan) || empty($no_telepon) || empty($cart_data) || json_last_error() !== JSON_ERROR_NONE) {
@@ -46,8 +47,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['cart_data'])) {
         $metode_pembayaran = 'transfer';
         $jenis_pesanan_form = 'take_away'; // Default untuk online
 
-        $stmt_pesanan = mysqli_prepare($koneksi, "INSERT INTO pesanan (id_pesanan, tipe_pesanan, jenis_pesanan, nama_pemesan, no_telepon, tgl_pesanan, total_harga, metode_pembayaran, status_pesanan) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)");
-        mysqli_stmt_bind_param($stmt_pesanan, "ssssssdss", $id_pesanan_baru, $tipe_pesanan, $jenis_pesanan_form, $nama_pemesan, $no_telepon, $tgl_pesanan, $total_harga_server, $metode_pembayaran, $status_pesanan);
+        $stmt_pesanan = mysqli_prepare($koneksi, "INSERT INTO pesanan (id_pesanan, tipe_pesanan, jenis_pesanan, nama_pemesan, no_telepon, catatan, tgl_pesanan, total_harga, metode_pembayaran, status_pesanan) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
+        mysqli_stmt_bind_param($stmt_pesanan, "sssssssdss", $id_pesanan_baru, $tipe_pesanan, $jenis_pesanan_form, $nama_pemesan, $no_telepon, $catatan, $tgl_pesanan, $total_harga_server, $metode_pembayaran, $status_pesanan);
         mysqli_stmt_execute($stmt_pesanan);
 
         // 4. Masukkan semua item ke tabel `detail_pesanan` DAN LANGSUNG KURANGI STOK
