@@ -9,11 +9,64 @@ if (!isset($_SESSION['user']) || $_SESSION['user']['jabatan'] !== 'owner') {
 }
 
 // 2. LOGIKA FILTER
-// Defaultnya menampilkan laporan pemasukan untuk bulan ini
-$jenis_laporan = $_GET['jenis_laporan'] ?? 'pemasukan';
-$tanggal_mulai = $_GET['tanggal_mulai'] ?? date('Y-m-01');
-$tanggal_selesai = $_GET['tanggal_selesai'] ?? date('Y-m-d');
+// =========================================================================
+// ==              LOGIKA FILTER BARU (LEBIH AMAN)                      ==
+// =========================================================================
 
+$jenis_laporan = $_GET['jenis_laporan'] ?? 'pemasukan';
+$periode = $_GET['periode'] ?? 'bulanan';
+$nilai = $_GET['nilai'] ?? '';
+
+// Tentukan tanggal mulai dan selesai berdasarkan periode yang dipilih
+$tanggal_mulai = '';
+$tanggal_selesai = '';
+$label_periode = '';
+
+switch ($periode) {
+    case 'harian':
+        // PERBAIKAN: Jika nilai tidak dalam format YYYY-MM-DD, kosongkan.
+        if (!empty($nilai) && !preg_match('/^\d{4}-\d{2}-\d{2}$/', $nilai)) {
+            $nilai = '';
+        }
+        if (empty($nilai)) {
+            $nilai = date('Y-m-d');
+        }
+        $tanggal_mulai = $nilai;
+        $tanggal_selesai = $nilai;
+        $label_periode = date('d F Y', strtotime($nilai));
+        break;
+
+    case 'mingguan':
+        // PERBAIKAN: Jika nilai tidak dalam format YYYY-Www, kosongkan.
+        if (!empty($nilai) && !str_contains($nilai, '-W')) {
+            $nilai = '';
+        }
+        if (empty($nilai)) {
+            $nilai = date('Y-\WW');
+        }
+        [$tahun, $minggu] = explode('-W', $nilai);
+        $dto = new DateTime();
+        $dto->setISODate((int)$tahun, (int)$minggu); // Konversi ke integer untuk keamanan
+        $tanggal_mulai = $dto->format('Y-m-d');
+        $label_periode = "Minggu ke-" . $minggu . " Tahun " . $tahun;
+        $dto->modify('+6 days');
+        $tanggal_selesai = $dto->format('Y-m-d');
+        break;
+
+    case 'bulanan':
+    default:
+        // PERBAIKAN: Jika nilai tidak dalam format YYYY-MM, kosongkan.
+        if (!empty($nilai) && !preg_match('/^\d{4}-\d{2}$/', $nilai)) {
+            $nilai = '';
+        }
+        if (empty($nilai)) {
+            $nilai = date('Y-m');
+        }
+        $tanggal_mulai = $nilai . '-01';
+        $tanggal_selesai = date('Y-m-t', strtotime($tanggal_mulai));
+        $label_periode = date('F Y', strtotime($tanggal_mulai));
+        break;
+}
 // Judul Halaman dinamis
 $judul_halaman = "Laporan Pemasukan";
 
@@ -110,6 +163,7 @@ if ($jenis_laporan === 'pemasukan') {
     $data_pembayaran = mysqli_fetch_all(mysqli_stmt_get_result($stmt_pembayaran), MYSQLI_ASSOC);
 }
 
+
 ?>
 <!DOCTYPE html>
 <html lang="id">
@@ -142,11 +196,9 @@ if ($jenis_laporan === 'pemasukan') {
                     <div class="card mb-4">
                         <div class="card-header"><i class="fas fa-filter me-1"></i>Filter Laporan</div>
                         <div class="card-body">
-
                             <form method="GET" action="laporan_penjualan.php" id="filterForm">
-                         
                                 <div class="row g-3 align-items-end">
-                                    <div class="col-md-3">
+                                    <div class="col-md-4">
                                         <label for="jenis_laporan" class="form-label">Jenis Laporan:</label>
                                         <select class="form-select" name="jenis_laporan" id="jenis_laporan">
                                             <option value="pemasukan" <?= $jenis_laporan == 'pemasukan' ? 'selected' : '' ?>>Pemasukan</option>
@@ -156,14 +208,25 @@ if ($jenis_laporan === 'pemasukan') {
                                         </select>
                                     </div>
                                     <div class="col-md-3">
-                                        <label for="tanggal_mulai" class="form-label">Tanggal Mulai:</label>
-                                        <input type="date" class="form-control" id="tanggal_mulai" name="tanggal_mulai" value="<?php echo htmlspecialchars($tanggal_mulai); ?>">
+                                        <label for="periode" class="form-label">Periode:</label>
+                                        <select class="form-select" name="periode" id="periode" onchange="this.form.submit()">
+                                            <option value="harian" <?= $periode == 'harian' ? 'selected' : '' ?>>Harian</option>
+                                            <option value="mingguan" <?= $periode == 'mingguan' ? 'selected' : '' ?>>Mingguan</option>
+                                            <option value="bulanan" <?= $periode == 'bulanan' ? 'selected' : '' ?>>Bulanan</option>
+                                        </select>
                                     </div>
                                     <div class="col-md-3">
-                                        <label for="tanggal_selesai" class="form-label">Tanggal Selesai:</label>
-                                        <input type="date" class="form-control" id="tanggal_selesai" name="tanggal_selesai" value="<?php echo htmlspecialchars($tanggal_selesai); ?>">
+                                        <label for="nilai" class="form-label">Pilih Tanggal:</label>
+                                        <?php if ($periode == 'harian'): ?>
+                                            <input type="date" class="form-control" id="nilai" name="nilai" value="<?= htmlspecialchars($nilai) ?>">
+                                        <?php elseif ($periode == 'mingguan'): ?>
+                                            <input type="week" class="form-control" id="nilai" name="nilai" value="<?= htmlspecialchars($nilai) ?>">
+                                        <?php else: // bulanan 
+                                        ?>
+                                            <input type="month" class="form-control" id="nilai" name="nilai" value="<?= htmlspecialchars($nilai) ?>">
+                                        <?php endif; ?>
                                     </div>
-                                    <div class="col-md-3">
+                                    <div class="col-md-2">
                                         <button type="submit" class="btn btn-primary w-100">Tampilkan</button>
                                     </div>
                                 </div>
@@ -223,7 +286,12 @@ if ($jenis_laporan === 'pemasukan') {
                                                 <td>Rp <?php echo number_format($transaksi['total_harga'], 0, ',', '.'); ?></td>
                                                 <td><?php echo htmlspecialchars($transaksi['nama_kasir']); ?></td>
                                                 <td>
-                                                    <a href="../kasir/detail_pesanan.php?id=<?php echo $transaksi['id_pesanan']; ?>" class="btn btn-sm btn-info" target="_blank">Detail</a>
+                                                    <button type="button" class="btn btn-sm btn-info detail-btn"
+                                                        data-bs-toggle="modal"
+                                                        data-bs-target="#detailPesananModal"
+                                                        data-id-pesanan="<?= htmlspecialchars($transaksi['id_pesanan']) ?>">
+                                                        Detail
+                                                    </button>
                                                 </td>
                                             </tr>
                                         <?php endforeach; ?>
@@ -323,6 +391,22 @@ if ($jenis_laporan === 'pemasukan') {
             </main>
         </div>
     </div>
+    <div class="modal fade" id="detailPesananModal" tabindex="-1" aria-labelledby="detailPesananModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="detailPesananModalLabel">Detail Pesanan</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body" id="detailPesananContent">
+                    <p class="text-center">Memuat data...</p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Tutup</button>
+                </div>
+            </div>
+        </div>
+    </div>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js" crossorigin="anonymous"></script>
     <script src="../../../js/scripts.js"></script>
 
@@ -396,8 +480,109 @@ if ($jenis_laporan === 'pemasukan') {
                     }
                 });
 
-                
+
             <?php endif; ?>
+        });
+
+        document.addEventListener('DOMContentLoaded', function() {
+            const detailModal = document.getElementById('detailPesananModal');
+            detailModal.addEventListener('show.bs.modal', async function(event) {
+                const button = event.relatedTarget;
+                const pesananId = button.getAttribute('data-id-pesanan');
+                const modalTitle = detailModal.querySelector('.modal-title');
+                const modalBody = detailModal.querySelector('#detailPesananContent');
+
+                // Set judul modal dan tampilkan status loading
+                modalTitle.textContent = 'Detail Pesanan #' + pesananId;
+                modalBody.innerHTML = '<p class="text-center">Memuat data...</p>';
+
+                try {
+                    // Panggil API yang sudah kita buat
+                    const response = await fetch(`../../../api/api_get_detail_pesanan.php?id=${pesananId}`);
+                    const result = await response.json();
+
+                    if (result.error) {
+                        modalBody.innerHTML = `<div class="alert alert-danger">${result.message}</div>`;
+                    } else {
+                        // Jika berhasil, bangun HTML dari data JSON
+                        const header = result.data.header;
+                        const items = result.data.items;
+                        let contentHtml = `
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <ul class="list-unstyled">
+                                    <li><strong>Nama Pemesan:</strong> ${header.nama_pemesan}</li>
+                                    <li><strong>Kasir:</strong> ${header.nama_kasir || 'Online'}</li>
+                                </ul>
+                            </div>
+                            <div class="col-md-6">
+                                <ul class="list-unstyled">
+                                    <li><strong>Jenis:</strong> ${header.tipe_pesanan}</li>
+                                    <li><strong>Metode Bayar:</strong> ${header.metode_pembayaran}</li>
+                                </ul>
+                            </div>
+                        </div>
+                    `;
+                        if (header.bukti_pembayaran) {
+                            // Tentukan path ke gambar. Sesuaikan jika perlu.
+                            const imagePath = `../../../assets/img/bukti_bayar/${header.bukti_pembayaran}`;
+                            contentHtml += `
+        <a href="${imagePath}" target="_blank" rel="noopener noreferrer" class="btn btn-info btn-sm mb-3">
+            <i class="fas fa-image"></i> Lihat Bukti Pembayaran
+        </a>
+        <hr>
+    `;
+                        }
+
+                        if (header.catatan) {
+                            contentHtml += `
+                            <h6>Catatan:</h6>
+                            <p class="fst-italic bg-light p-2 rounded">${header.catatan.replace(/\n/g, '<br>')}</p>
+                        `;
+                        }
+
+                        contentHtml += `
+                        <h6>Rincian Item:</h6>
+                        <table class="table table-sm table-bordered">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>Produk</th>
+                                    <th class="text-center">Jumlah</th>
+                                    <th class="text-end">Harga</th>
+                                    <th class="text-end">Subtotal</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                    `;
+
+                        items.forEach(item => {
+                            contentHtml += `
+                            <tr>
+                                <td>${item.nama_produk}</td>
+                                <td class="text-center">${item.jumlah}</td>
+                                <td class="text-end">Rp ${parseInt(item.harga_saat_transaksi).toLocaleString('id-ID')}</td>
+                                <td class="text-end">Rp ${parseInt(item.sub_total).toLocaleString('id-ID')}</td>
+                            </tr>
+                        `;
+                        });
+
+                        contentHtml += `
+                            </tbody>
+                            <tfoot>
+                                <tr class="table-light">
+                                    <th colspan="3" class="text-end">Total Akhir</th>
+                                    <th class="text-end">Rp ${parseInt(header.total_harga).toLocaleString('id-ID')}</th>
+                                </tr>
+                            </tfoot>
+                        </table>
+                    `;
+                        modalBody.innerHTML = contentHtml;
+                    }
+                } catch (error) {
+                    modalBody.innerHTML = '<div class="alert alert-danger">Gagal terhubung ke server.</div>';
+                    console.error('Fetch error:', error);
+                }
+            });
         });
     </script>
 </body>
