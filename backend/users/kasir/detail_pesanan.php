@@ -10,25 +10,28 @@ if (!isset($_SESSION['user']) || $_SESSION['user']['jabatan'] !== 'kasir') {
 
 // 2. VALIDASI INPUT ID PESANAN
 if (!isset($_GET['id']) || empty($_GET['id'])) {
-    // Jika tidak ada ID di URL, kembali ke halaman riwayat
-    header('Location: riwayat_pesanan.php');
+    header('Location: pesanan_data_riwayat.php');
     exit;
 }
 $id_pesanan = $_GET['id'];
 
 // 3. AMBIL DATA HEADER PESANAN
+// --- PERUBAHAN 1: Tambahkan 'pk.bukti_pembayaran' dan ganti 'jenis_pesanan' menjadi 'tipe_pesanan' ---
 $sql_header = "SELECT 
                     pk.id_pesanan, 
-                    pk.nama_pemesan, 
+                    pk.nama_pemesan,
+                    pk.no_telepon,
+                    pk.jenis_pesanan AS jenis_pesanan, /* <-- GANTI INI */                     
                     pk.tgl_pesanan, 
                     pk.total_harga, 
                     pk.metode_pembayaran,
-                    pk.jenis_pesanan,
+                    pk.tipe_pesanan,
                     pk.catatan,
+                    pk.bukti_pembayaran, /* <-- TAMBAHKAN INI */
                     k.nama AS nama_kasir
                 FROM 
                     pesanan pk
-                JOIN 
+                LEFT JOIN /* <-- Gunakan LEFT JOIN agar pesanan online tanpa kasir tetap bisa dibuka */
                     karyawan k ON pk.id_karyawan = k.id_karyawan
                 WHERE 
                     pk.id_pesanan = ?";
@@ -43,10 +46,10 @@ if (!$pesanan) {
     die("Error: Pesanan tidak ditemukan.");
 }
 
-// 4. AMBIL DATA ITEM-ITEM PESANAN
+// 4. AMBIL DATA ITEM-ITEM PESANAN (Tidak ada perubahan di sini)
 $sql_detail = "SELECT
                     dp.jumlah,
-                    dp.harga_saat_transaksi AS harga_saat_transaksi,
+                    dp.harga_saat_transaksi,
                     dp.sub_total,
                     p.nama_produk
                 FROM
@@ -64,6 +67,7 @@ while ($row = mysqli_fetch_assoc($result_detail)) {
     $detail_items[] = $row;
 }
 ?>
+
 <!DOCTYPE html>
 <html lang="id">
 
@@ -107,12 +111,12 @@ while ($row = mysqli_fetch_assoc($result_detail)) {
             <?php
             include 'inc/sidebar.php';
             ?>
-                <div class="sb-sidenav-footer">
-                    <div class="small">Kasir :</div>
-                    <?php
-                    echo isset($_SESSION['user']['name']) ? $_SESSION['user']['name'] : 'Unknown';
-                    ?>
-                </div>
+            <div class="sb-sidenav-footer">
+                <div class="small">Kasir :</div>
+                <?php
+                echo isset($_SESSION['user']['name']) ? $_SESSION['user']['name'] : 'Unknown';
+                ?>
+            </div>
             </nav>
         </div>
         <div id="layoutSidenav_content">
@@ -146,6 +150,11 @@ while ($row = mysqli_fetch_assoc($result_detail)) {
                                             <li><strong>Jenis:</strong> <?php echo htmlspecialchars(ucwords(str_replace('_', ' ', $pesanan['jenis_pesanan']))); ?></li>
                                             <li><strong>Metode Bayar:</strong> <?php echo htmlspecialchars(ucfirst($pesanan['metode_pembayaran'])); ?></li>
                                         </ul>
+                                        <?php if (!empty($pesanan['bukti_pembayaran'])): ?>
+                                            <button type="button" class="btn btn-info btn-sm mt-2 no-print" data-bs-toggle="modal" data-bs-target="#buktiBayarModal" data-bukti-bayar="<?= htmlspecialchars($pesanan['bukti_pembayaran']) ?>">
+                                                <i class="fas fa-image"></i> Lihat Bukti Bayar
+                                            </button>
+                                        <?php endif; ?>
                                     </div>
                                     <?php if (!empty($pesanan['catatan'])): ?>
                                         <div class="col-md-6">
@@ -208,6 +217,19 @@ while ($row = mysqli_fetch_assoc($result_detail)) {
             </footer>
         </div>
     </div>
+    <div class="modal fade" id="buktiBayarModal" tabindex="-1" aria-labelledby="buktiBayarModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="buktiBayarModalLabel">Bukti Pembayaran</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body text-center">
+                    <img id="gambarBuktiBayar" src="" class="img-fluid" alt="Bukti Pembayaran">
+                </div>
+            </div>
+        </div>
+    </div>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js" crossorigin="anonymous"></script>
     <script src="../../js/scripts.js"></script>
     <script>
@@ -217,6 +239,16 @@ while ($row = mysqli_fetch_assoc($result_detail)) {
             window.print();
             // Menghapus class setelah dialog print ditutup
             document.body.classList.remove('printing');
+        }
+        const buktiBayarModal = document.getElementById('buktiBayarModal');
+        if (buktiBayarModal) {
+            buktiBayarModal.addEventListener('show.bs.modal', event => {
+                const button = event.relatedTarget;
+                const namaFileBukti = button.getAttribute('data-bukti-bayar');
+                const gambarModal = buktiBayarModal.querySelector('#gambarBuktiBayar');
+                // Pastikan path ini sesuai dengan struktur folder Anda
+                gambarModal.src = '../../assets/img/bukti_bayar/' + namaFileBukti;
+            });
         }
     </script>
 </body>

@@ -22,7 +22,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $sql_beban = "SELECT SUM(dp.jumlah) AS total_item_aktif FROM detail_pesanan dp JOIN pesanan p ON dp.id_pesanan = p.id_pesanan WHERE p.status_pesanan IN ('pending', 'diproses') AND (dp.id_produk LIKE 'KB%' OR dp.id_produk LIKE 'KS%')";
             $result_beban = mysqli_query($koneksi, $sql_beban);
             $beban_dapur = mysqli_fetch_assoc($result_beban)['total_item_aktif'] ?? 0;
-            
+
             $status_baru = ($beban_dapur < 50) ? 'diproses' : 'pending';
 
             $stmt_update = mysqli_prepare($koneksi, "UPDATE pesanan SET status_pesanan = ?, id_karyawan = ? WHERE id_pesanan = ? AND status_pesanan = 'menunggu_konfirmasi'");
@@ -110,7 +110,7 @@ if (!empty($all_pesanan_ids)) {
                     FROM detail_pesanan dp 
                     JOIN produk p ON dp.id_produk = p.id_produk 
                     WHERE dp.id_pesanan IN ($ids_string)";
-    
+
     $result_details = mysqli_query($koneksi, $sql_details);
     while ($row = mysqli_fetch_assoc($result_details)) {
         $detail_items[$row['id_pesanan']][] = $row;
@@ -120,12 +120,41 @@ if (!empty($all_pesanan_ids)) {
 
 <!DOCTYPE html>
 <html lang="id">
+
 <head>
     <title>Pesanan Masuk & Antrean - Kasir</title>
     <link href="../../css/styles.css" rel="stylesheet" />
     <script src="https://use.fontawesome.com/releases/v6.3.0/js/all.js" crossorigin="anonymous"></script>
     <link rel="icon" type="image/png" href="../../assets/img/logo-kuebalok.png">
+    <style>
+        /* === TAMBAHKAN CSS INI === */
+        .catatan-pesanan {
+            background-color: #fff3cd;
+            /* Warna kuning muda seperti sticky note */
+            border-left: 4px solid #ffeeba;
+            padding: 10px;
+            border-radius: 4px;
+            margin-top: 1rem;
+            /* Beri jarak dari elemen di atasnya */
+            font-size: 1.3rem;
+            /* Sedikit lebih kecil agar tidak terlalu mendominasi */
+        }
+
+        .catatan-pesanan strong {
+            display: block;
+            margin-bottom: 5px;
+            color: #856404;
+            /* Warna teks yang lebih gelap */
+        }
+
+        .catatan-pesanan p {
+            color: #555;
+        }
+
+        /* ========================= */
+    </style>
 </head>
+
 <body class="sb-nav-fixed">
     <?php include 'inc/navbar.php'; ?>
     <div id="layoutSidenav">
@@ -148,7 +177,7 @@ if (!empty($all_pesanan_ids)) {
                         unset($_SESSION['notif']);
                     }
                     ?>
-                    
+
                     <div class="row">
                         <div class="col-lg-4">
                             <div class="card mb-4">
@@ -160,20 +189,27 @@ if (!empty($all_pesanan_ids)) {
                                                 <div class="card-body">
                                                     <h5 class="card-title"><?= htmlspecialchars($pesanan['nama_pemesan']) ?></h5>
                                                     <h6 class="card-subtitle mb-2 text-muted"><?= htmlspecialchars($pesanan['id_pesanan']) ?></h6>
-                                                    
+
                                                     <ul class="list-unstyled mb-2 small">
-                                                        <?php if(isset($detail_items[$pesanan['id_pesanan']])): ?>
-                                                            <?php foreach($detail_items[$pesanan['id_pesanan']] as $item): ?>
+                                                        <?php if (isset($detail_items[$pesanan['id_pesanan']])): ?>
+                                                            <?php foreach ($detail_items[$pesanan['id_pesanan']] as $item): ?>
                                                                 <li><?= htmlspecialchars($item['jumlah']) ?>x <?= htmlspecialchars($item['nama_produk']) ?></li>
                                                             <?php endforeach; ?>
                                                         <?php endif; ?>
                                                     </ul>
-                                                    
+
+                                                    <?php if (!empty($pesanan['catatan'])): ?>
+                                                        <div class="catatan-pesanan">
+                                                            <strong><i class="fas fa-sticky-note"></i> Catatan:</strong>
+                                                            <p><em><?= nl2br(htmlspecialchars($pesanan['catatan'])) ?></em></p>
+                                                        </div>
+                                                    <?php endif; ?>
+
                                                     <p class="card-text">
                                                         <strong>Total:</strong> Rp <?= number_format($pesanan['total_harga']) ?><br>
                                                         <strong>Waktu:</strong> <?= date('H:i', strtotime($pesanan['tgl_pesanan'])) ?>
                                                     </p>
-                                                    
+
                                                     <button type="button" class="btn btn-info btn-sm" data-bs-toggle="modal" data-bs-target="#buktiBayarModal" data-bukti-bayar="<?= htmlspecialchars($pesanan['bukti_pembayaran']) ?>">
                                                         Lihat Bukti
                                                     </button>
@@ -185,6 +221,7 @@ if (!empty($all_pesanan_ids)) {
                                                         <input type="hidden" name="id_pesanan" value="<?= $pesanan['id_pesanan'] ?>">
                                                         <button type="submit" name="batalkan_pesanan" class="btn btn-danger btn-sm">Batalkan</button>
                                                     </form>
+
                                                 </div>
                                             </div>
                                         <?php endforeach; ?>
@@ -209,17 +246,24 @@ if (!empty($all_pesanan_ids)) {
                                                 </div>
                                                 <div class="card-body">
                                                     <ul class="list-unstyled mb-2 small">
-                                                        <?php if(isset($detail_items[$antrean['id_pesanan']])): ?>
-                                                            <?php foreach($detail_items[$antrean['id_pesanan']] as $item): ?>
+                                                        <?php if (isset($detail_items[$antrean['id_pesanan']])): ?>
+                                                            <?php foreach ($detail_items[$antrean['id_pesanan']] as $item): ?>
                                                                 <li><?= htmlspecialchars($item['jumlah']) ?>x <?= htmlspecialchars($item['nama_produk']) ?></li>
                                                             <?php endforeach; ?>
                                                         <?php endif; ?>
                                                     </ul>
                                                     <p class="small mb-2">Pesanan dari: <strong><?= ucfirst($antrean['tipe_pesanan']) ?></strong></p>
-                                                    
+
+                                                    <?php if (!empty($antrean['catatan'])): ?>
+                                                        <div class="catatan-pesanan">
+                                                            <strong><i class="fas fa-sticky-note"></i> Catatan:</strong>
+                                                            <p><em><?= nl2br(htmlspecialchars($antrean['catatan'])) ?></em></p>
+                                                        </div>
+                                                    <?php endif; ?>
+
                                                     <form method="POST" class="d-inline" onsubmit="return confirm('Tandai pesanan ini sudah SIAP DIAMBIL?');">
-                                                         <input type="hidden" name="id_pesanan" value="<?= $antrean['id_pesanan'] ?>">
-                                                         <button type="submit" name="siap_diambil" class="btn btn-success btn-sm w-100">Tandai Siap Diambil</button>
+                                                        <input type="hidden" name="id_pesanan" value="<?= $antrean['id_pesanan'] ?>">
+                                                        <button type="submit" name="siap_diambil" class="btn btn-success btn-sm w-100">Tandai Siap Diambil</button>
                                                     </form>
                                                 </div>
                                             </div>
@@ -244,16 +288,22 @@ if (!empty($all_pesanan_ids)) {
                                                 </div>
                                                 <div class="card-body">
                                                     <ul class="list-unstyled mb-2 small">
-                                                        <?php if(isset($detail_items[$siap['id_pesanan']])): ?>
-                                                            <?php foreach($detail_items[$siap['id_pesanan']] as $item): ?>
+                                                        <?php if (isset($detail_items[$siap['id_pesanan']])): ?>
+                                                            <?php foreach ($detail_items[$siap['id_pesanan']] as $item): ?>
                                                                 <li><?= htmlspecialchars($item['jumlah']) ?>x <?= htmlspecialchars($item['nama_produk']) ?></li>
                                                             <?php endforeach; ?>
                                                         <?php endif; ?>
                                                     </ul>
                                                     <p class="small mb-2">Pesanan dari: <strong><?= ucfirst($siap['tipe_pesanan']) ?></strong></p>
+                                                    <?php if (!empty($siap['catatan'])): ?>
+                                                        <div class="catatan-pesanan">
+                                                            <strong><i class="fas fa-sticky-note"></i> Catatan:</strong>
+                                                            <p><em><?= nl2br(htmlspecialchars($siap['catatan'])) ?></em></p>
+                                                        </div>
+                                                    <?php endif; ?>
                                                     <form method="POST" class="d-inline" onsubmit="return confirm('Konfirmasi pesanan ini sudah diambil pelanggan?');">
-                                                         <input type="hidden" name="id_pesanan" value="<?= $siap['id_pesanan'] ?>">
-                                                         <button type="submit" name="konfirmasi_pengambilan" class="btn btn-primary btn-sm w-100">Konfirmasi Pengambilan</button>
+                                                        <input type="hidden" name="id_pesanan" value="<?= $siap['id_pesanan'] ?>">
+                                                        <button type="submit" name="konfirmasi_pengambilan" class="btn btn-primary btn-sm w-100">Konfirmasi Pengambilan</button>
                                                     </form>
                                                 </div>
                                             </div>
@@ -297,4 +347,5 @@ if (!empty($all_pesanan_ids)) {
         });
     </script>
 </body>
+
 </html>

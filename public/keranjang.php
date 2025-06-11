@@ -138,12 +138,30 @@ include 'includes/header.php';
     }
 
     /* Mengatur input field di dalam .input-group */
-    .checkout-form .input-group input {
+    /* .checkout-form .input-group input { */
+        /* width: 100%; */
+        /* padding: 1.5rem;
+        font-size: 1.4rem;
+        background: none;
+        color: #333; */
+    /* } */
+
+    /* Mengatur input field & textarea di dalam .input-group */
+    .checkout-form .input-group input,
+    .checkout-form .input-group textarea {
         width: 100%;
         padding: 1.5rem;
         font-size: 1.4rem;
         background: none;
         color: #333;
+        border: none;
+        /* Menghilangkan border default */
+        outline: none;
+        /* Menghilangkan outline saat di-klik */
+        resize: vertical;
+        /* Izinkan user mengubah tinggi, tapi tidak lebar */
+        font-family: inherit;
+        /* Pastikan font sama dengan elemen lain */
     }
 
     /* Mengatur ikon feather */
