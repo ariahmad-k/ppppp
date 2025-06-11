@@ -215,8 +215,12 @@ include 'includes/header.php';
                     <input type="tel" name="no_telepon" placeholder="Nomor Telepon / WA Aktif" required>
                 </div>
 
-                <input type="hidden" name="cart_data" id="cart-data-input">
+                <div class="input-group">
+                    <i data-feather="file-text"></i>
+                    <textarea name="catatan" placeholder="Catatan untuk pesanan (opsional). Contoh: Kue baloknya setengah matang." rows="3"></textarea>
+                </div>
 
+                <input type="hidden" name="cart_data" id="cart-data-input">
                 <button type="submit" class="btn">Buat Pesanan & Lanjutkan Pembayaran</button>
             </form>
         </div>
