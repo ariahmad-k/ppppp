@@ -96,8 +96,7 @@ if (!$result_produk) {
     <div class="faq-card">
         <details>
             <summary>1. Bagaimana Cara Pesan Online?</summary>
-            <p>Kamu bisa Klik di navigasi bar "Menu" atau bisa langsung di halaman utama
-                scroll kebawah di bagian "Menu Kami".
+            <p>Kamu bisa Klik di navigasi bar "Menu" lalu anda bisa langsung memilih menu yang akan di pesan, 
             </p>
         </details>
     </div>
@@ -116,8 +115,8 @@ if (!$result_produk) {
     <div class="faq-card">
         <details>
             <summary>4. Tingkat kematang Kue Balok </summary>
-            <p>tingkat Kematangan Kue Balok itu sendiri selera dari kami ada 2 pilih jika ingin lumer saat di makan kamu bisa Request setengah mateng dan 
-                jika ingin sedikit padat saat di makan anda bisa Request mateng.</p>
+            <p>tingkat Kematangan Kue Balok itu sendiri selera dari kami ada 2 pilih jika ingin lumer saat di makan kamu bisa Request setengah matang dan 
+                jika ingin sedikit padat saat di makan anda bisa Request matang.</p>
         </details>
     </div>
 </section>
