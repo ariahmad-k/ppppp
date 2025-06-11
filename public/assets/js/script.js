@@ -1,32 +1,29 @@
 // =======================================================
-// ==      SCRIPT.JS VERSI FINAL & TERSTRUKTUR      ==
+// ==       SCRIPT.JS - VERSI FINAL GABUNGAN          ==
 // =======================================================
 
-// --- FUNGSI-FUNGSI UNTUK KERANJANG BELANJA ---
+// --- BAGIAN 1: FUNGSI-FUNGSI UTAMA UNTUK KERANJANG BELANJA ---
 
+/**
+ * Menambahkan produk ke keranjang setelah memvalidasi stok melalui API.
+ * @param {object} product - Objek produk dengan {id, nama, harga}.
+ */
 async function addToCart(product) {
-    // Ambil keranjang dari localStorage
     let cart = JSON.parse(localStorage.getItem('kueBalokCart')) || {};
-    
-    // Jumlah produk ini di keranjang saat ini
     const currentQuantityInCart = cart[product.id] ? cart[product.id].jumlah : 0;
 
     try {
-        // 1. Kirim permintaan ke API cek_stok.php
         const response = await fetch(`cek_stok.php?id=${product.id}`);
         const data = await response.json();
 
-        // 2. Cek apakah ada error dari server atau stok tidak ditemukan
         if (data.error) {
-            alert(data.message);
+            alert(data.message); // Menampilkan pesan error dari server
             return;
         }
 
         const serverStock = data.stok;
 
-        // 3. Validasi: Bandingkan stok server dengan jumlah yang ingin ditambahkan
         if (serverStock > currentQuantityInCart) {
-            // Jika stok masih tersedia, tambahkan ke keranjang
             if (cart[product.id]) {
                 cart[product.id].jumlah++;
             } else {
@@ -40,16 +37,69 @@ async function addToCart(product) {
             alert(`'${product.nama}' berhasil ditambahkan ke keranjang!`);
             updateCartIcon();
         } else {
-            // Jika stok habis
             alert(`Maaf, stok untuk '${product.nama}' tidak mencukupi (sisa: ${serverStock}).`);
         }
-
     } catch (error) {
-        console.error('Error:', error);
+        console.error('Error saat addToCart:', error);
         alert('Terjadi kesalahan saat memeriksa stok.');
     }
 }
 
+/**
+ * Mengupdate jumlah item di halaman keranjang, termasuk validasi stok saat menambah.
+ * @param {string} productId - ID produk yang akan diupdate.
+ * @param {number} change - Jumlah perubahan (+1 atau -1).
+ */
+async function updateCartQuantity(productId, change) {
+    let cart = JSON.parse(localStorage.getItem('kueBalokCart')) || {};
+    if (!cart[productId]) return;
+
+    // Jika user menambah jumlah (+1), kita perlu cek stok lagi
+    if (change > 0) {
+        try {
+            const response = await fetch(`cek_stok.php?id=${productId}`);
+            const data = await response.json();
+            if (data.error || data.stok <= cart[productId].jumlah) {
+                alert(`Maaf, stok untuk '${cart[productId].nama}' tidak mencukupi.`);
+                return; // Batalkan penambahan jika stok tidak cukup
+            }
+        } catch (error) {
+            console.error('Error saat updateCartQuantity:', error);
+            alert('Gagal memverifikasi stok.');
+            return;
+        }
+    }
+
+    // Lanjutkan update jika stok aman atau jika user mengurangi jumlah
+    cart[productId].jumlah += change;
+
+    // Hapus item jika jumlahnya 0 atau kurang
+    if (cart[productId].jumlah <= 0) {
+        delete cart[productId];
+    }
+
+    localStorage.setItem('kueBalokCart', JSON.stringify(cart));
+    renderCartPage(); // Gambar ulang tabel keranjang
+    updateCartIcon(); // Update ikon
+}
+
+/**
+ * Menghapus item dari keranjang.
+ * @param {string} productId - ID produk yang akan dihapus.
+ */
+function removeFromCart(productId) {
+    let cart = JSON.parse(localStorage.getItem('kueBalokCart')) || {};
+    if (cart[productId] && confirm(`Anda yakin ingin menghapus '${cart[productId].nama}' dari keranjang?`)) {
+        delete cart[productId];
+        localStorage.setItem('kueBalokCart', JSON.stringify(cart));
+        renderCartPage();
+        updateCartIcon();
+    }
+}
+
+/**
+ * Mengupdate angka pada ikon keranjang belanja.
+ */
 function updateCartIcon() {
     const cart = JSON.parse(localStorage.getItem('kueBalokCart')) || {};
     let totalItems = 0;
@@ -64,6 +114,9 @@ function updateCartIcon() {
     }
 }
 
+/**
+ * Menampilkan semua item dari keranjang ke dalam tabel di halaman keranjang.php.
+ */
 function renderCartPage() {
     const cart = JSON.parse(localStorage.getItem('kueBalokCart')) || {};
     const cartContainer = document.getElementById('cart-items-container');
@@ -72,16 +125,18 @@ function renderCartPage() {
     const checkoutButton = document.querySelector('#checkout-form button[type="submit"]');
     let totalPrice = 0;
 
-    cartContainer.innerHTML = ''; // Kosongkan container dulu
+    if (!cartContainer) return; // Keluar jika bukan di halaman keranjang
+
+    cartContainer.innerHTML = ''; 
 
     if (Object.keys(cart).length === 0) {
         cartContainer.innerHTML = '<tr><td colspan="5" style="text-align:center; padding: 2rem;">Keranjang Anda masih kosong.</td></tr>';
-        totalPriceElement.textContent = 'Total: Rp 0';
-        if(checkoutButton) checkoutButton.disabled = true; // Nonaktifkan tombol jika keranjang kosong
+        if (totalPriceElement) totalPriceElement.textContent = 'Total: Rp 0';
+        if (checkoutButton) checkoutButton.disabled = true;
         return;
     }
 
-    if(checkoutButton) checkoutButton.disabled = false; // Aktifkan jika ada isinya
+    if (checkoutButton) checkoutButton.disabled = false;
 
     for (const id in cart) {
         const item = cart[id];
@@ -94,66 +149,27 @@ function renderCartPage() {
             <td>Rp ${item.harga.toLocaleString('id-ID')}</td>
             <td>
                 <div class="quantity-control">
-                    <button onclick="updateCartQuantity('${id}', -1)">-</button>
+                    <button class="quantity-btn" data-id="${id}" data-change="-1">-</button>
                     <input type="text" value="${item.jumlah}" readonly>
-                    <button onclick="updateCartQuantity('${id}', 1)">+</button>
+                    <button class="quantity-btn" data-id="${id}" data-change="1">+</button>
                 </div>
             </td>
             <td class="text-end">Rp ${subtotal.toLocaleString('id-ID')}</td>
-            <td class="text-center"><a href="#" class="remove-btn" onclick="removeFromCart('${id}')">Hapus</a></td>
+            <td class="text-center"><a href="#" class="remove-btn" data-id="${id}">Hapus</a></td>
         `;
         cartContainer.appendChild(row);
     }
 
-    totalPriceElement.textContent = `Total: Rp ${totalPrice.toLocaleString('id-ID')}`;
-    if(cartDataInput) cartDataInput.value = JSON.stringify(cart);
+    if (totalPriceElement) totalPriceElement.textContent = `Total: Rp ${totalPrice.toLocaleString('id-ID')}`;
+    if (cartDataInput) cartDataInput.value = JSON.stringify(cart);
 }
 
-function updateCartQuantity(productId, change) {
-    let cart = JSON.parse(localStorage.getItem('kueBalokCart')) || {};
-    if (cart[productId]) {
-        cart[productId].jumlah += change;
-        if (cart[productId].jumlah <= 0) {
-            delete cart[productId];
-        }
-        localStorage.setItem('kueBalokCart', JSON.stringify(cart));
-        renderCartPage();
-        updateCartIcon();
-    }
-}
 
-function removeFromCart(productId) {
-    let cart = JSON.parse(localStorage.getItem('kueBalokCart')) || {};
-    if (cart[productId] && confirm(`Anda yakin ingin menghapus '${cart[productId].nama}' dari keranjang?`)) {
-        delete cart[productId];
-        localStorage.setItem('kueBalokCart', JSON.stringify(cart));
-        renderCartPage();
-        updateCartIcon();
-    }
-}
-
-// --- FUNGSI-FUNGSI UNTUK INISIALISASI HALAMAN ---
-
-function initHomePageAndMenuPage() {
-    const addToCartButtons = document.querySelectorAll('.add-to-cart-btn button');
-    addToCartButtons.forEach(button => {
-        button.addEventListener('click', function(e) {
-            e.preventDefault();
-            const product = {
-                id: this.dataset.id,
-                nama: this.dataset.nama,
-                harga: parseInt(this.dataset.harga)
-            };
-            addToCart(product);
-        });
-    });
-}
-
-// --- BLOK UTAMA: INISIALISASI SAAT HALAMAN DIMUAT ---
+// --- BAGIAN 2: PUSAT INISIALISASI HALAMAN & EVENT LISTENER ---
 
 document.addEventListener('DOMContentLoaded', function () {
     
-    // 1. Inisialisasi UI Umum (Navbar, Search)
+    // Inisialisasi UI Umum (Navbar, dll.)
     const navbarNav = document.querySelector('.navbar-nav');
     const hamburgerMenu = document.querySelector('#hamburger-menu');
     if (hamburgerMenu) {
@@ -162,63 +178,69 @@ document.addEventListener('DOMContentLoaded', function () {
             e.preventDefault();
         };
     }
-
-    const searchForm = document.querySelector('.search-form');
-    const searchBox = document.querySelector('#search-box');
-    const searchButton = document.querySelector('#search-button');
-    if(searchButton) {
-        searchButton.onclick = (e) => {
-            searchForm.classList.toggle('active');
-            searchBox.focus();
-            e.preventDefault();
-        };
-    }
-     // Logika untuk form checkout di halaman keranjang.php
-    const checkoutForm = document.getElementById('checkout-form');
-    if (checkoutForm) {
-        checkoutForm.addEventListener('submit', function(e) {
-            const cart = JSON.parse(localStorage.getItem('kueBalokCart')) || {};
-
-            // Validasi terakhir sebelum kirim, pastikan keranjang tidak kosong
-            if (Object.keys(cart).length === 0) {
-                alert('Keranjang Anda kosong! Silakan pilih menu terlebih dahulu.');
-                e.preventDefault(); // Mencegah form dikirim
-                return;
-            }
-
-            // PENTING: Pastikan input tersembunyi berisi data keranjang terbaru
-            document.getElementById('cart-data-input').value = JSON.stringify(cart);
-
-            // KUNCI UTAMA: Hapus keranjang dari localStorage SETELAH data disiapkan untuk dikirim
-            localStorage.removeItem('kueBalokCart');
-
-            // Setelah ini, form akan melanjutkan proses submit ke proses_pesanan.php
-            // dan keranjang di browser sudah kosong.
-        });
-    }
-
     document.addEventListener('click', function (e) {
         if (hamburgerMenu && !hamburgerMenu.contains(e.target) && !navbarNav.contains(e.target)) {
             navbarNav.classList.remove('active');
         }
-        if (searchButton && !searchButton.contains(e.target) && !searchForm.contains(e.target)) {
-            searchForm.classList.remove('active');
-        }
     });
 
-    // 2. Inisialisasi Keranjang Belanja (berjalan di semua halaman)
+    // Inisialisasi Keranjang Belanja (berjalan di semua halaman)
     updateCartIcon();
 
-    // 3. Inisialisasi KHUSUS untuk Halaman Menu atau Halaman Utama
+    // Inisialisasi KHUSUS untuk Halaman yang ada Kartu Menu
     if (document.querySelector('.menu-card')) {
-        initHomePageAndMenuPage();
+        const addToCartButtons = document.querySelectorAll('.add-to-cart-btn button');
+        addToCartButtons.forEach(button => {
+            button.addEventListener('click', function(e) {
+                e.preventDefault();
+                const product = {
+                    id: this.dataset.id,
+                    nama: this.dataset.nama,
+                    harga: parseInt(this.dataset.harga)
+                };
+                addToCart(product);
+            });
+        });
     }
     
-    // 4. Inisialisasi KHUSUS untuk Halaman Keranjang
-    if (document.querySelector('.cart-page')) {
+    // Inisialisasi KHUSUS untuk Halaman Keranjang
+    if (document.getElementById('cart-items-container')) {
         renderCartPage();
+
+        // Event listener untuk tombol +/- dan Hapus di halaman keranjang
+        document.getElementById('cart-items-container').addEventListener('click', function(e) {
+            e.preventDefault();
+            // Tombol +/-
+            if (e.target.classList.contains('quantity-btn')) {
+                const id = e.target.dataset.id;
+                const change = parseInt(e.target.dataset.change);
+                updateCartQuantity(id, change);
+            }
+            // Tombol Hapus
+            if (e.target.classList.contains('remove-btn')) {
+                const id = e.target.dataset.id;
+                removeFromCart(id);
+            }
+        });
+    }
+    
+    // Logika untuk form checkout di halaman keranjang.php
+    const checkoutForm = document.getElementById('checkout-form');
+    if (checkoutForm) {
+        checkoutForm.addEventListener('submit', function(e) {
+            const cart = JSON.parse(localStorage.getItem('kueBalokCart')) || {};
+            if (Object.keys(cart).length === 0) {
+                alert('Keranjang Anda kosong! Silakan pilih menu terlebih dahulu.');
+                e.preventDefault();
+                return;
+            }
+            document.getElementById('cart-data-input').value = JSON.stringify(cart);
+            localStorage.removeItem('kueBalokCart');
+        });
     }
 
-    // 5. Inisialisasi Ikon Feather
-    feather.replace();
+    // Inisialisasi Ikon Feather (jika Anda menggunakannya)
+    if (typeof feather !== 'undefined') {
+        feather.replace();
+    }
 });
