@@ -23,10 +23,21 @@ mysqli_stmt_bind_param($stmt_transaksi, "s", $today);
 mysqli_stmt_execute($stmt_transaksi);
 $transaksi_hari_ini = mysqli_fetch_assoc(mysqli_stmt_get_result($stmt_transaksi))['jumlah'] ?? 0;
 
-// Pesanan Online Baru (jika ada tabel 'pesanan' untuk online)
-// Anggap saja kita punya, jika tidak, bisa diberi nilai 0 atau di-comment
-$pesanan_online_baru = 0; // Ganti dengan query jika sudah ada fiturnya
+// --- PERBAIKAN: Query untuk menghitung pesanan online yang menunggu konfirmasi ---
+// Definisikan status yang ingin kita hitung.
+$status_konfirmasi = 'menunggu_konfirmasi';
 
+// Siapkan query yang aman untuk menghitung jumlah pesanan dengan status tersebut.
+$stmt_online = mysqli_prepare($koneksi, "SELECT COUNT(id_pesanan) AS jumlah FROM pesanan WHERE status_pesanan = ?");
+
+// Bind parameter untuk keamanan
+mysqli_stmt_bind_param($stmt_online, "s", $status_konfirmasi);
+
+// Eksekusi query
+mysqli_stmt_execute($stmt_online);
+
+// Ambil hasilnya dan simpan ke variabel. Jika tidak ada, nilainya 0.
+$pesanan_online_baru = mysqli_fetch_assoc(mysqli_stmt_get_result($stmt_online))['jumlah'] ?? 0;
 
 // === DATA UNTUK GRAFIK PENJUALAN 7 HARI TERAKHIR ===
 $sql_chart = "SELECT DATE(tgl_pesanan) as tanggal, SUM(total_harga) as total 

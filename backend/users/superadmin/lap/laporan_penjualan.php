@@ -144,11 +144,7 @@ if ($jenis_laporan === 'pemasukan') {
                         <div class="card-body">
 
                             <form method="GET" action="laporan_penjualan.php" id="filterForm">
-                                <div class="d-flex gap-2 mb-3">
-                                    <button type="button" id="btnHariIni" class="btn btn-outline-secondary btn-sm">Hari Ini</button>
-                                    <button type="button" id="btnMingguIni" class="btn btn-outline-secondary btn-sm">Minggu Ini</button>
-                                    <button type="button" id="btnBulanIni" class="btn btn-outline-secondary btn-sm">Bulan Ini</button>
-                                </div>
+                         
                                 <div class="row g-3 align-items-end">
                                     <div class="col-md-3">
                                         <label for="jenis_laporan" class="form-label">Jenis Laporan:</label>
@@ -400,40 +396,7 @@ if ($jenis_laporan === 'pemasukan') {
                     }
                 });
 
-                // === TAMBAHKAN LOGIKA FILTER TANGGAL INI ===
-                const form = document.getElementById('filterForm');
-                const tglMulai = document.getElementById('tanggal_mulai');
-                const tglSelesai = document.getElementById('tanggal_selesai');
-
-                // Fungsi untuk format tanggal YYYY-MM-DD
-                const formatDate = (date) => date.toISOString().split('T')[0];
-
-                const today = new Date();
-
-                document.getElementById('btnHariIni').addEventListener('click', () => {
-                    tglMulai.value = formatDate(today);
-                    tglSelesai.value = formatDate(today);
-                    form.submit(); // Langsung tampilkan laporan
-                });
-
-                document.getElementById('btnMingguIni').addEventListener('click', () => {
-                    const dayOfWeek = today.getDay(); // 0=Minggu, 1=Senin, ...
-                    const startOfWeek = new Date(today);
-                    // Set ke hari Senin minggu ini
-                    const diff = today.getDate() - dayOfWeek + (dayOfWeek === 0 ? -6 : 1);
-                    startOfWeek.setDate(diff);
-
-                    tglMulai.value = formatDate(startOfWeek);
-                    tglSelesai.value = formatDate(today);
-                    form.submit();
-                });
-
-                document.getElementById('btnBulanIni').addEventListener('click', () => {
-                    const startOfMonth = new Date(today.getFullYear(), today.getMonth(), 1);
-                    tglMulai.value = formatDate(startOfMonth);
-                    tglSelesai.value = formatDate(today);
-                    form.submit();
-                });
+                
             <?php endif; ?>
         });
     </script>
