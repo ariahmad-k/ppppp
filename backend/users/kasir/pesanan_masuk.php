@@ -38,17 +38,45 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 
     // --- TAMBAHAN: Aksi Batalkan Pesanan (Fake Order) ---
+    // Di dalam file pesanan_masuk.php
+
+    // --- GANTI BLOK INI DENGAN VERSI BARU ---
     if (isset($_POST['batalkan_pesanan'])) {
         $id_pesanan = $_POST['id_pesanan'];
-        $stmt_batal = mysqli_prepare($koneksi, "UPDATE pesanan SET status_pesanan = 'dibatalkan' WHERE id_pesanan = ? AND status_pesanan = 'menunggu_konfirmasi'");
-        mysqli_stmt_bind_param($stmt_batal, "s", $id_pesanan);
-        if (mysqli_stmt_execute($stmt_batal)) {
-            $_SESSION['notif'] = ['pesan' => "Pesanan #$id_pesanan telah dibatalkan.", 'tipe' => 'warning'];
-        } else {
-            $_SESSION['notif'] = ['pesan' => 'Gagal membatalkan pesanan.', 'tipe' => 'danger'];
+
+        // Mulai transaksi untuk memastikan semua proses berjalan atau tidak sama sekali
+        mysqli_begin_transaction($koneksi);
+
+        try {
+            // 1. Ambil semua item di pesanan ini
+            $sql_items = "SELECT id_produk, jumlah FROM detail_pesanan WHERE id_pesanan = ?";
+            $stmt_items = mysqli_prepare($koneksi, $sql_items);
+            mysqli_stmt_bind_param($stmt_items, "s", $id_pesanan);
+            mysqli_stmt_execute($stmt_items);
+            $result_items = mysqli_stmt_get_result($stmt_items);
+
+            // 2. Kembalikan stok untuk setiap item
+            $stmt_update_stok = mysqli_prepare($koneksi, "UPDATE produk SET stok = stok + ? WHERE id_produk = ?");
+            while ($item = mysqli_fetch_assoc($result_items)) {
+                mysqli_stmt_bind_param($stmt_update_stok, "is", $item['jumlah'], $item['id_produk']);
+                mysqli_stmt_execute($stmt_update_stok);
+            }
+
+            // 3. Ubah status pesanan menjadi 'dibatalkan'
+            $stmt_batal = mysqli_prepare($koneksi, "UPDATE pesanan SET status_pesanan = 'dibatalkan' WHERE id_pesanan = ? AND status_pesanan = 'menunggu_konfirmasi'");
+            mysqli_stmt_bind_param($stmt_batal, "s", $id_pesanan);
+            mysqli_stmt_execute($stmt_batal);
+
+            // 4. Jika semua berhasil, simpan perubahan
+            mysqli_commit($koneksi);
+            $_SESSION['notif'] = ['pesan' => "Pesanan #$id_pesanan telah dibatalkan dan stok berhasil dikembalikan.", 'tipe' => 'warning'];
+
+        } catch (Exception $e) {
+            // Jika ada error, batalkan semua perubahan
+            mysqli_rollback($koneksi);
+            $_SESSION['notif'] = ['pesan' => 'Gagal membatalkan pesanan. Terjadi error sistem.', 'tipe' => 'danger'];
         }
     }
-
     // --- PERUBAHAN: Aksi Tandai Siap Diambil (dari Dapur) ---
     if (isset($_POST['siap_diambil'])) {
         $id_pesanan = $_POST['id_pesanan'];
@@ -181,19 +209,23 @@ if (!empty($all_pesanan_ids)) {
                     <div class="row">
                         <div class="col-lg-4">
                             <div class="card mb-4">
-                                <div class="card-header bg-primary text-white"><i class="fas fa-money-check-alt me-1"></i>Validasi Pesanan Online</div>
+                                <div class="card-header bg-primary text-white"><i
+                                        class="fas fa-money-check-alt me-1"></i>Validasi Pesanan Online</div>
                                 <div class="card-body" style="max-height: 70vh; overflow-y: auto;">
                                     <?php if (!empty($pesanan_online)): ?>
                                         <?php foreach ($pesanan_online as $pesanan): ?>
                                             <div class="card mb-3">
                                                 <div class="card-body">
-                                                    <h5 class="card-title"><?= htmlspecialchars($pesanan['nama_pemesan']) ?></h5>
-                                                    <h6 class="card-subtitle mb-2 text-muted"><?= htmlspecialchars($pesanan['id_pesanan']) ?></h6>
+                                                    <h5 class="card-title"><?= htmlspecialchars($pesanan['nama_pemesan']) ?>
+                                                    </h5>
+                                                    <h6 class="card-subtitle mb-2 text-muted">
+                                                        <?= htmlspecialchars($pesanan['id_pesanan']) ?></h6>
 
                                                     <ul class="list-unstyled mb-2 small">
                                                         <?php if (isset($detail_items[$pesanan['id_pesanan']])): ?>
                                                             <?php foreach ($detail_items[$pesanan['id_pesanan']] as $item): ?>
-                                                                <li><?= htmlspecialchars($item['jumlah']) ?>x <?= htmlspecialchars($item['nama_produk']) ?></li>
+                                                                <li><?= htmlspecialchars($item['jumlah']) ?>x
+                                                                    <?= htmlspecialchars($item['nama_produk']) ?></li>
                                                             <?php endforeach; ?>
                                                         <?php endif; ?>
                                                     </ul>
@@ -206,27 +238,38 @@ if (!empty($all_pesanan_ids)) {
                                                     <?php endif; ?>
 
                                                     <p class="card-text">
-                                                        <strong>Total:</strong> Rp <?= number_format($pesanan['total_harga']) ?><br>
-                                                        <strong>Waktu:</strong> <?= date('H:i', strtotime($pesanan['tgl_pesanan'])) ?>
+                                                        <strong>Total:</strong> Rp
+                                                        <?= number_format($pesanan['total_harga']) ?><br>
+                                                        <strong>Waktu:</strong>
+                                                        <?= date('H:i', strtotime($pesanan['tgl_pesanan'])) ?>
                                                     </p>
 
-                                                    <button type="button" class="btn btn-info btn-sm" data-bs-toggle="modal" data-bs-target="#buktiBayarModal" data-bukti-bayar="<?= htmlspecialchars($pesanan['bukti_pembayaran']) ?>">
+                                                    <button type="button" class="btn btn-info btn-sm" data-bs-toggle="modal"
+                                                        data-bs-target="#buktiBayarModal"
+                                                        data-bukti-bayar="<?= htmlspecialchars($pesanan['bukti_pembayaran']) ?>">
                                                         Lihat Bukti
                                                     </button>
-                                                    <form method="POST" class="d-inline" onsubmit="return confirm('Anda yakin pembayaran ini valid?');">
-                                                        <input type="hidden" name="id_pesanan" value="<?= $pesanan['id_pesanan'] ?>">
-                                                        <button type="submit" name="validasi_pesanan" class="btn btn-success btn-sm">Validasi</button>
+                                                    <form method="POST" class="d-inline"
+                                                        onsubmit="return confirm('Anda yakin pembayaran ini valid?');">
+                                                        <input type="hidden" name="id_pesanan"
+                                                            value="<?= $pesanan['id_pesanan'] ?>">
+                                                        <button type="submit" name="validasi_pesanan"
+                                                            class="btn btn-success btn-sm">Validasi</button>
                                                     </form>
-                                                    <form method="POST" class="d-inline" onsubmit="return confirm('Anda yakin ingin MEMBATALKAN pesanan ini?');">
-                                                        <input type="hidden" name="id_pesanan" value="<?= $pesanan['id_pesanan'] ?>">
-                                                        <button type="submit" name="batalkan_pesanan" class="btn btn-danger btn-sm">Batalkan</button>
+                                                    <form method="POST" class="d-inline"
+                                                        onsubmit="return confirm('Anda yakin ingin MEMBATALKAN pesanan ini?');">
+                                                        <input type="hidden" name="id_pesanan"
+                                                            value="<?= $pesanan['id_pesanan'] ?>">
+                                                        <button type="submit" name="batalkan_pesanan"
+                                                            class="btn btn-danger btn-sm">Batalkan</button>
                                                     </form>
 
                                                 </div>
                                             </div>
                                         <?php endforeach; ?>
                                     <?php else: ?>
-                                        <p class="text-center text-muted">Tidak ada pesanan online yang menunggu konfirmasi.</p>
+                                        <p class="text-center text-muted">Tidak ada pesanan online yang menunggu konfirmasi.
+                                        </p>
                                     <?php endif; ?>
                                 </div>
                             </div>
@@ -234,7 +277,8 @@ if (!empty($all_pesanan_ids)) {
 
                         <div class="col-lg-4">
                             <div class="card mb-4">
-                                <div class="card-header bg-warning"><i class="fas fa-blender-phone me-1"></i>Antrean Pesanan Dapur</div>
+                                <div class="card-header bg-warning"><i class="fas fa-blender-phone me-1"></i>Antrean
+                                    Pesanan Dapur</div>
                                 <div class="card-body" style="max-height: 70vh; overflow-y: auto;">
                                     <?php if (!empty($antrean_pesanan)): ?>
                                         <?php foreach ($antrean_pesanan as $antrean): ?>
@@ -242,17 +286,20 @@ if (!empty($all_pesanan_ids)) {
                                             <div class="card mb-3 border-<?= $is_pending ? 'danger' : 'primary' ?>">
                                                 <div class="card-header d-flex justify-content-between">
                                                     <strong><?= htmlspecialchars($antrean['nama_pemesan']) ?></strong>
-                                                    <span class="badge bg-<?= $is_pending ? 'danger' : 'primary' ?>"><?= ucfirst($antrean['status_pesanan']) ?></span>
+                                                    <span
+                                                        class="badge bg-<?= $is_pending ? 'danger' : 'primary' ?>"><?= ucfirst($antrean['status_pesanan']) ?></span>
                                                 </div>
                                                 <div class="card-body">
                                                     <ul class="list-unstyled mb-2 small">
                                                         <?php if (isset($detail_items[$antrean['id_pesanan']])): ?>
                                                             <?php foreach ($detail_items[$antrean['id_pesanan']] as $item): ?>
-                                                                <li><?= htmlspecialchars($item['jumlah']) ?>x <?= htmlspecialchars($item['nama_produk']) ?></li>
+                                                                <li><?= htmlspecialchars($item['jumlah']) ?>x
+                                                                    <?= htmlspecialchars($item['nama_produk']) ?></li>
                                                             <?php endforeach; ?>
                                                         <?php endif; ?>
                                                     </ul>
-                                                    <p class="small mb-2">Pesanan dari: <strong><?= ucfirst($antrean['tipe_pesanan']) ?></strong></p>
+                                                    <p class="small mb-2">Pesanan dari:
+                                                        <strong><?= ucfirst($antrean['tipe_pesanan']) ?></strong></p>
 
                                                     <?php if (!empty($antrean['catatan'])): ?>
                                                         <div class="catatan-pesanan">
@@ -261,9 +308,12 @@ if (!empty($all_pesanan_ids)) {
                                                         </div>
                                                     <?php endif; ?>
 
-                                                    <form method="POST" class="d-inline" onsubmit="return confirm('Tandai pesanan ini sudah SIAP DIAMBIL?');">
-                                                        <input type="hidden" name="id_pesanan" value="<?= $antrean['id_pesanan'] ?>">
-                                                        <button type="submit" name="siap_diambil" class="btn btn-success btn-sm w-100">Tandai Siap Diambil</button>
+                                                    <form method="POST" class="d-inline"
+                                                        onsubmit="return confirm('Tandai pesanan ini sudah SIAP DIAMBIL?');">
+                                                        <input type="hidden" name="id_pesanan"
+                                                            value="<?= $antrean['id_pesanan'] ?>">
+                                                        <button type="submit" name="siap_diambil"
+                                                            class="btn btn-success btn-sm w-100">Tandai Siap Diambil</button>
                                                     </form>
                                                 </div>
                                             </div>
@@ -277,7 +327,8 @@ if (!empty($all_pesanan_ids)) {
 
                         <div class="col-lg-4">
                             <div class="card mb-4">
-                                <div class="card-header bg-success text-white"><i class="fas fa-check-circle me-1"></i>Pesanan Siap Diambil</div>
+                                <div class="card-header bg-success text-white"><i
+                                        class="fas fa-check-circle me-1"></i>Pesanan Siap Diambil</div>
                                 <div class="card-body" style="max-height: 70vh; overflow-y: auto;">
                                     <?php if (!empty($pesanan_siap_diambil)): ?>
                                         <?php foreach ($pesanan_siap_diambil as $siap): ?>
@@ -290,20 +341,25 @@ if (!empty($all_pesanan_ids)) {
                                                     <ul class="list-unstyled mb-2 small">
                                                         <?php if (isset($detail_items[$siap['id_pesanan']])): ?>
                                                             <?php foreach ($detail_items[$siap['id_pesanan']] as $item): ?>
-                                                                <li><?= htmlspecialchars($item['jumlah']) ?>x <?= htmlspecialchars($item['nama_produk']) ?></li>
+                                                                <li><?= htmlspecialchars($item['jumlah']) ?>x
+                                                                    <?= htmlspecialchars($item['nama_produk']) ?></li>
                                                             <?php endforeach; ?>
                                                         <?php endif; ?>
                                                     </ul>
-                                                    <p class="small mb-2">Pesanan dari: <strong><?= ucfirst($siap['tipe_pesanan']) ?></strong></p>
+                                                    <p class="small mb-2">Pesanan dari:
+                                                        <strong><?= ucfirst($siap['tipe_pesanan']) ?></strong></p>
                                                     <?php if (!empty($siap['catatan'])): ?>
                                                         <div class="catatan-pesanan">
                                                             <strong><i class="fas fa-sticky-note"></i> Catatan:</strong>
                                                             <p><em><?= nl2br(htmlspecialchars($siap['catatan'])) ?></em></p>
                                                         </div>
                                                     <?php endif; ?>
-                                                    <form method="POST" class="d-inline" onsubmit="return confirm('Konfirmasi pesanan ini sudah diambil pelanggan?');">
-                                                        <input type="hidden" name="id_pesanan" value="<?= $siap['id_pesanan'] ?>">
-                                                        <button type="submit" name="konfirmasi_pengambilan" class="btn btn-primary btn-sm w-100">Konfirmasi Pengambilan</button>
+                                                    <form method="POST" class="d-inline"
+                                                        onsubmit="return confirm('Konfirmasi pesanan ini sudah diambil pelanggan?');">
+                                                        <input type="hidden" name="id_pesanan"
+                                                            value="<?= $siap['id_pesanan'] ?>">
+                                                        <button type="submit" name="konfirmasi_pengambilan"
+                                                            class="btn btn-primary btn-sm w-100">Konfirmasi Pengambilan</button>
                                                     </form>
                                                 </div>
                                             </div>
@@ -320,7 +376,8 @@ if (!empty($all_pesanan_ids)) {
         </div>
     </div>
 
-    <div class="modal fade" id="buktiBayarModal" tabindex="-1" aria-labelledby="buktiBayarModalLabel" aria-hidden="true">
+    <div class="modal fade" id="buktiBayarModal" tabindex="-1" aria-labelledby="buktiBayarModalLabel"
+        aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered">
             <div class="modal-content">
                 <div class="modal-header">

@@ -231,7 +231,6 @@ document.addEventListener('DOMContentLoaded', function () {
             const cart = JSON.parse(localStorage.getItem('kueBalokCart')) || {};
             if (Object.keys(cart).length === 0) {
                 alert('Keranjang Anda kosong! Silakan pilih menu terlebih dahulu.');
-                e.preventDefault();
                 return;
             }
             document.getElementById('cart-data-input').value = JSON.stringify(cart);
