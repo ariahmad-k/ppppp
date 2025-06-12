@@ -38,7 +38,7 @@ include '../backend/koneksi.php'; // Pastikan koneksi database sudah benar
             <a href="menu.php">Menu</a>
             <a href="lacak.php">Lacak Pesanan</a>
             <a href="index.php#faq">FAQ</a>
-            <a href="kontak.php">Kontak</a>
+            <a href="index.php#contact">Kontak</a>
         </div>
 
         <div class="navbar-extra">
