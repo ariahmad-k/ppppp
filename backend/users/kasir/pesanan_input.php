@@ -254,7 +254,7 @@ $result_produk = $koneksi->query($query_produk);
                                         <input type="hidden" name="total_amount" id="total-amount-input">
 
                                         <div class="form-group mb-3">
-                                            <label for="nama_pemesan" class="form-label">Nama Pemesan (Opsional):</label>
+                                            <label for="nama_pemesan" class="form-label">Nama Pemesan:</label>
                                             <input type="text" class="form-control" id="nama_pemesan" name="nama_pemesan" placeholder="Nama Pelanggan">
                                         </div>
                                         <div class="form-group mb-3">
@@ -273,7 +273,8 @@ $result_produk = $koneksi->query($query_produk);
                                             <select class="form-select" id="metode_pembayaran" name="metode_pembayaran" required>
                                                 <option value="tunai">Tunai</option>
                                                 <option value="qris">QRIS</option>
-                                                <option value="debit">Debit</option>
+                                                <option value="dana">DANA</option>
+                                                <option value="transfer bank">Transfer Bank</option>
                                             </select>
                                         </div>
 

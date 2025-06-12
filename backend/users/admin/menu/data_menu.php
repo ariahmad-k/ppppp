@@ -16,6 +16,7 @@ $result = mysqli_query($koneksi, "SELECT * FROM produk ORDER BY kategori, nama_p
 
 <!DOCTYPE html>
 <html lang="id">
+
 <head>
     <meta charset="utf-8" />
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
@@ -23,9 +24,10 @@ $result = mysqli_query($koneksi, "SELECT * FROM produk ORDER BY kategori, nama_p
     <title>Data Menu - Admin</title>
     <link href="https://cdn.jsdelivr.net/npm/simple-datatables@7.1.2/dist/style.min.css" rel="stylesheet" />
     <link href="../../../css/styles.css" rel="stylesheet" />
-    <link rel="icon" type="image/png" href="../../../assets/img/logo-kuebalok.png"> 
+    <link rel="icon" type="image/png" href="../../../assets/img/logo-kuebalok.png">
     <script src="https://use.fontawesome.com/releases/v6.3.0/js/all.js" crossorigin="anonymous"></script>
 </head>
+
 <body class="sb-nav-fixed">
     <?php include "../inc/navbar.php"; ?>
     <div id="layoutSidenav">
@@ -52,7 +54,7 @@ $result = mysqli_query($koneksi, "SELECT * FROM produk ORDER BY kategori, nama_p
                         unset($_SESSION['notif']);
                     }
                     ?>
-                    
+
                     <div class="mb-3">
                         <a href="tambah_menu.php" class="btn btn-primary"><i class="fas fa-plus"></i> Tambah Menu</a>
                     </div>
@@ -82,9 +84,35 @@ $result = mysqli_query($koneksi, "SELECT * FROM produk ORDER BY kategori, nama_p
                                             <td>Rp <?= number_format($row['harga']) ?></td>
                                             <td><?= htmlspecialchars(ucfirst($row['kategori'])) ?></td>
                                             <td><img src="../../../assets/img/produk/<?= htmlspecialchars($row['poto_produk']) ?>" width="100" alt="<?= htmlspecialchars($row['nama_produk']) ?>"></td>
-                                            <td>
-                                                <a href="menu_edit.php?id_produk=<?= $row['id_produk'] ?>" class="btn btn-warning btn-sm" title="Edit"><i class="fas fa-edit"></i></a>
-                                                <a href="menu_hapus.php?id_produk=<?= $row['id_produk'] ?>" class="btn btn-danger btn-sm" onclick="return confirm('Anda yakin ingin menghapus produk ini?')" title="Hapus"><i class="fas fa-trash"></i></a>
+                                            <td class="text-center">
+                                                <div class="d-flex justify-content-center gap-2">
+
+                                                    <?php
+                                                    // PERBAIKAN: Menggunakan variabel $row, bukan $data
+                                                    if ($row['status_produk'] === 'aktif'):
+                                                    ?>
+
+                                                        <a href="menu_edit.php?id_produk=<?= htmlspecialchars($row['id_produk']) ?>" class="btn btn-warning btn-sm" title="Edit">
+                                                            <i class="fas fa-edit"></i>
+                                                        </a>
+
+                                                        <a href="produk_nonaktifkan.php?id=<?= htmlspecialchars($row['id_produk']) ?>" class="btn btn-secondary btn-sm" onclick="return confirm('Anda yakin ingin menonaktifkan produk ini?')" title="Nonaktifkan">
+                                                            <i class="fas fa-eye-slash"></i>
+                                                        </a>
+
+                                                    <?php else: ?>
+
+                                                        <a href="produk_aktifkan.php?id=<?= htmlspecialchars($row['id_produk']) ?>" class="btn btn-success btn-sm" onclick="return confirm('Anda yakin ingin mengaktifkan kembali produk ini?')" title="Aktifkan">
+                                                            <i class="fas fa-eye"></i> Aktifkan
+                                                        </a>
+
+                                                    <?php endif; ?>
+
+                                                    <a href="menu_hapus.php?id_produk=<?= htmlspecialchars($row['id_produk']) ?>" class="btn btn-danger btn-sm" onclick="return confirm('PERHATIAN: Menghapus produk akan menghilangkannya secara permanen. Lanjutkan?')" title="Hapus Permanen">
+                                                        <i class="fas fa-trash"></i>
+                                                    </a>
+
+                                                </div>
                                             </td>
                                         </tr>
                                     <?php } ?>
@@ -108,4 +136,5 @@ $result = mysqli_query($koneksi, "SELECT * FROM produk ORDER BY kategori, nama_p
     <script src="https://cdn.jsdelivr.net/npm/simple-datatables@7.1.2/dist/umd/simple-datatables.min.js" crossorigin="anonymous"></script>
     <script src="../../../js/datatables-simple-demo.js"></script>
 </body>
+
 </html>
