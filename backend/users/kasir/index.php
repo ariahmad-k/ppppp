@@ -42,6 +42,7 @@ $transaksi_pribadi_hari_ini = mysqli_fetch_assoc($result_pribadi)['total'] ?? 0;
     <meta charset="utf-8" />
     <title>Dashboard - Kasir</title>
     <link href="../../css/styles.css" rel="stylesheet" />
+    
     <script src="https://use.fontawesome.com/releases/v6.3.0/js/all.js" crossorigin="anonymous"></script>
 </head>
 <body class="sb-nav-fixed">

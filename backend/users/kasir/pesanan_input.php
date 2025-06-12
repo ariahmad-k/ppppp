@@ -117,6 +117,7 @@ $result_produk = $koneksi->query($query_produk);
     <meta name="description" content="" />
     <meta name="author" content="" />
     <title>Input Pesanan - Kasir</title>
+    <link rel="icon" type="image/png" href="../../assets/img/logo-kuebalok.png">
     <link href="https://cdn.jsdelivr.net/npm/simple-datatables@7.1.2/dist/style.min.css" rel="stylesheet" />
     <link href="../../css/styles.css" rel="stylesheet" />
     <script src="https://use.fontawesome.com/releases/v6.3.0/js/all.js" crossorigin="anonymous"></script>
@@ -201,7 +202,7 @@ $result_produk = $koneksi->query($query_produk);
                                             echo '<div class="col-12 mt-4"><h4>' . htmlspecialchars(strtoupper($row['kategori'])) . '</h4></div>';
                                             $current_kategori = $row['kategori'];
                                         }
-                                ?>
+                                        ?>
                                         <div class="col-lg-3 col-md-4 mb-4">
                                             <div class="card product-card h-100"
                                                 data-product-id="<?= htmlspecialchars($row['id_produk']); ?>"
@@ -209,22 +210,27 @@ $result_produk = $koneksi->query($query_produk);
                                                 data-product-price="<?= htmlspecialchars($row['harga']); ?>"
                                                 data-product-stock="<?= htmlspecialchars($row['stok'] ?? 0); ?>">
 
-                                                <img src="../../assets/img/produk/<?= htmlspecialchars($row['poto_produk']); ?>" class="card-img-top" alt="<?= htmlspecialchars($row['nama_produk']); ?>">
+                                                <img src="../../assets/img/produk/<?= htmlspecialchars($row['poto_produk']); ?>"
+                                                    class="card-img-top" alt="<?= htmlspecialchars($row['nama_produk']); ?>">
 
                                                 <div class="card-body text-center d-flex flex-column">
-                                                    <h6 class="card-title flex-grow-1"><?= htmlspecialchars($row['nama_produk']); ?></h6>
-                                                    <p class="card-text mb-2"><strong>Rp <?= number_format($row['harga'], 0, ',', '.'); ?></strong></p>
+                                                    <h6 class="card-title flex-grow-1">
+                                                        <?= htmlspecialchars($row['nama_produk']); ?></h6>
+                                                    <p class="card-text mb-2"><strong>Rp
+                                                            <?= number_format($row['harga'], 0, ',', '.'); ?></strong></p>
                                                     <p class="card-text small text-muted">Stok: <?= $row['stok'] ?? 0; ?></p>
 
                                                     <?php if (($row['stok'] ?? 0) > 0): ?>
-                                                        <button class="btn btn-primary btn-sm add-to-cart-btn mt-auto">Pilih</button>
+                                                        <button
+                                                            class="btn btn-primary btn-sm add-to-cart-btn mt-auto">Pilih</button>
                                                     <?php else: ?>
-                                                        <button class="btn btn-secondary btn-sm mt-auto" disabled>Stok Habis</button>
+                                                        <button class="btn btn-secondary btn-sm mt-auto" disabled>Stok
+                                                            Habis</button>
                                                     <?php endif; ?>
                                                 </div>
                                             </div>
                                         </div>
-                                <?php
+                                        <?php
                                     } // Akhir loop while
                                 } else {
                                     // Jika tidak ada produk sama sekali
@@ -242,7 +248,8 @@ $result_produk = $koneksi->query($query_produk);
                                 <div class="card-body">
                                     <form id="orderForm" action="pesanan_input.php" method="POST">
                                         <div id="cart-items" style="max-height: 300px; overflow-y: auto;">
-                                            <p class="text-muted text-center" id="empty-cart-message">Keranjang kosong.</p>
+                                            <p class="text-muted text-center" id="empty-cart-message">Keranjang kosong.
+                                            </p>
                                         </div>
                                         <hr>
                                         <div class="d-flex justify-content-between align-items-center mb-3">
@@ -255,22 +262,26 @@ $result_produk = $koneksi->query($query_produk);
 
                                         <div class="form-group mb-3">
                                             <label for="nama_pemesan" class="form-label">Nama Pemesan:</label>
-                                            <input type="text" class="form-control" id="nama_pemesan" name="nama_pemesan" placeholder="Nama Pelanggan">
+                                            <input type="text" class="form-control" id="nama_pemesan"
+                                                name="nama_pemesan" placeholder="Nama Pelanggan">
                                         </div>
                                         <div class="form-group mb-3">
                                             <label for="catatan" class="form-label">Catatan (Opsional):</label>
-                                            <textarea class="form-control" name="catatan" id="catatan" rows="2"></textarea>
+                                            <textarea class="form-control" name="catatan" id="catatan"
+                                                rows="2"></textarea>
                                         </div>
                                         <div class="form-group mb-3">
                                             <label for="jenis_pesanan" class="form-label">Jenis Pesanan:</label>
-                                            <select class="form-select" id="jenis_pesanan" name="jenis_pesanan" required>
+                                            <select class="form-select" id="jenis_pesanan" name="jenis_pesanan"
+                                                required>
                                                 <option value="dine_in">Dine In</option>
                                                 <option value="take_away">Take Away</option>
                                             </select>
                                         </div>
                                         <div class="form-group mb-3">
                                             <label for="metode_pembayaran" class="form-label">Metode Pembayaran:</label>
-                                            <select class="form-select" id="metode_pembayaran" name="metode_pembayaran" required>
+                                            <select class="form-select" id="metode_pembayaran" name="metode_pembayaran"
+                                                required>
                                                 <option value="tunai">Tunai</option>
                                                 <option value="qris">QRIS</option>
                                                 <option value="dana">DANA</option>
@@ -279,8 +290,10 @@ $result_produk = $koneksi->query($query_produk);
                                         </div>
 
                                         <div class="d-grid gap-2">
-                                            <button type="submit" class="btn btn-success" id="charge-btn" disabled>Bayar</button>
-                                            <button type="button" class="btn btn-danger" id="clear-cart-btn">Kosongkan</button>
+                                            <button type="submit" class="btn btn-success" id="charge-btn"
+                                                disabled>Bayar</button>
+                                            <button type="button" class="btn btn-danger"
+                                                id="clear-cart-btn">Kosongkan</button>
                                         </div>
                                     </form>
                                 </div>
@@ -293,7 +306,7 @@ $result_produk = $koneksi->query($query_produk);
     </div>
 
     <script>
-        document.addEventListener('DOMContentLoaded', function() {
+        document.addEventListener('DOMContentLoaded', function () {
             let cart = {};
 
             const cartItemsDiv = document.getElementById('cart-items');
@@ -390,13 +403,13 @@ $result_produk = $koneksi->query($query_produk);
 
             // Event listener untuk klik pada card produk
             document.querySelectorAll('.product-card').forEach(card => {
-                card.addEventListener('click', function() {
+                card.addEventListener('click', function () {
                     addToCart(this);
                 });
             });
 
             // Event listener untuk tombol plus, minus, hapus (delegasi)
-            cartItemsDiv.addEventListener('click', function(e) {
+            cartItemsDiv.addEventListener('click', function (e) {
                 const row = e.target.closest('.cart-item-row');
                 if (!row) return;
 
@@ -420,7 +433,7 @@ $result_produk = $koneksi->query($query_produk);
             });
 
             // Event listener untuk tombol Kosongkan
-            document.getElementById('clear-cart-btn').addEventListener('click', function() {
+            document.getElementById('clear-cart-btn').addEventListener('click', function () {
                 if (Object.keys(cart).length > 0 && confirm('Anda yakin ingin mengosongkan keranjang?')) {
                     cart = {};
                     updateCartDisplay();
@@ -428,7 +441,7 @@ $result_produk = $koneksi->query($query_produk);
             });
 
             // Event listener untuk submit form
-            document.getElementById('orderForm').addEventListener('submit', function(e) {
+            document.getElementById('orderForm').addEventListener('submit', function (e) {
                 if (Object.keys(cart).length === 0) {
                     e.preventDefault();
                     alert('Keranjang pesanan masih kosong!');

@@ -13,18 +13,24 @@ include __DIR__ . '/../../backend/cek_kadaluarsa.php';
     <meta charset="UTF-8" />
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="icon" type="image/png" href="../backend/assets/img/logo-kuebalok.png">
 
     <title><?php echo isset($page_title) ? htmlspecialchars($page_title) . ' - ' : ''; ?>Kue Balok Mang Wiro</title>
 
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,100;0,300;0,400;0,700;1,700&display=swap" rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,100;0,300;0,400;0,700;1,700&display=swap"
+        rel="stylesheet" />
 
     <script src="https://unpkg.com/feather-icons"></script>
 
 
     <link rel="stylesheet" href="assets/css/style.css" />
     <link rel="icon" type="image/png" href="assets/img/logo-kuebalok.png">
+
+    <style>
+
+    </style>
 </head>
 
 <body>
@@ -44,7 +50,8 @@ include __DIR__ . '/../../backend/cek_kadaluarsa.php';
         <div class="navbar-extra">
             <a href="keranjang.php" id="shopping-cart-button">
                 <i data-feather="shopping-cart"></i>
-                <span class="cart-item-count" style="display:none; background-color:red; color:white; border-radius:50%; padding: 0.1rem 0.5rem; font-size: 0.8rem; position:absolute; top:0; right:0;">0</span>
+                <span class="cart-item-count"
+                    style="display:none; background-color:red; color:white; border-radius:50%; padding: 0.1rem 0.5rem; font-size: 0.8rem; position:absolute; top:0; right:0;">0</span>
             </a>
             <a href="#" id="hamburger-menu"><i data-feather="menu"></i></a>
         </div>
@@ -54,4 +61,3 @@ include __DIR__ . '/../../backend/cek_kadaluarsa.php';
             <label for="search-box"><i data-feather="search"></i></label>
         </div>
     </nav>
-

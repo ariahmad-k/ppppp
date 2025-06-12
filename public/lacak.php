@@ -22,7 +22,10 @@ $sql_antrean = "SELECT id_pesanan, status_pesanan FROM pesanan WHERE status_pesa
 $result_antrean = mysqli_query($koneksi, $sql_antrean);
 $antrean_publik = mysqli_fetch_all($result_antrean, MYSQLI_ASSOC);
 ?>
+<head>
+    <meta http-equiv="refresh" content="5">
 
+</head>
 <style>
     /* CSS Anda sudah bagus, tidak perlu diubah. Saya salin kembali di sini. */
     .page-section {

@@ -214,18 +214,20 @@ if (!empty($all_pesanan_ids)) {
                                 <div class="card-body" style="max-height: 70vh; overflow-y: auto;">
                                     <?php if (!empty($pesanan_online)): ?>
                                         <?php foreach ($pesanan_online as $pesanan): ?>
-                                            <div class="card mb-3">
+                                            <div class="card mb-3" id="pesanan-<?= htmlspecialchars($pesanan['id_pesanan']) ?>">
                                                 <div class="card-body">
                                                     <h5 class="card-title"><?= htmlspecialchars($pesanan['nama_pemesan']) ?>
                                                     </h5>
                                                     <h6 class="card-subtitle mb-2 text-muted">
-                                                        <?= htmlspecialchars($pesanan['id_pesanan']) ?></h6>
+                                                        <?= htmlspecialchars($pesanan['id_pesanan']) ?>
+                                                    </h6>
 
                                                     <ul class="list-unstyled mb-2 small">
                                                         <?php if (isset($detail_items[$pesanan['id_pesanan']])): ?>
                                                             <?php foreach ($detail_items[$pesanan['id_pesanan']] as $item): ?>
                                                                 <li><?= htmlspecialchars($item['jumlah']) ?>x
-                                                                    <?= htmlspecialchars($item['nama_produk']) ?></li>
+                                                                    <?= htmlspecialchars($item['nama_produk']) ?>
+                                                                </li>
                                                             <?php endforeach; ?>
                                                         <?php endif; ?>
                                                     </ul>
@@ -294,12 +296,14 @@ if (!empty($all_pesanan_ids)) {
                                                         <?php if (isset($detail_items[$antrean['id_pesanan']])): ?>
                                                             <?php foreach ($detail_items[$antrean['id_pesanan']] as $item): ?>
                                                                 <li><?= htmlspecialchars($item['jumlah']) ?>x
-                                                                    <?= htmlspecialchars($item['nama_produk']) ?></li>
+                                                                    <?= htmlspecialchars($item['nama_produk']) ?>
+                                                                </li>
                                                             <?php endforeach; ?>
                                                         <?php endif; ?>
                                                     </ul>
                                                     <p class="small mb-2">Pesanan dari:
-                                                        <strong><?= ucfirst($antrean['tipe_pesanan']) ?></strong></p>
+                                                        <strong><?= ucfirst($antrean['tipe_pesanan']) ?></strong>
+                                                    </p>
 
                                                     <?php if (!empty($antrean['catatan'])): ?>
                                                         <div class="catatan-pesanan">
@@ -342,12 +346,14 @@ if (!empty($all_pesanan_ids)) {
                                                         <?php if (isset($detail_items[$siap['id_pesanan']])): ?>
                                                             <?php foreach ($detail_items[$siap['id_pesanan']] as $item): ?>
                                                                 <li><?= htmlspecialchars($item['jumlah']) ?>x
-                                                                    <?= htmlspecialchars($item['nama_produk']) ?></li>
+                                                                    <?= htmlspecialchars($item['nama_produk']) ?>
+                                                                </li>
                                                             <?php endforeach; ?>
                                                         <?php endif; ?>
                                                     </ul>
                                                     <p class="small mb-2">Pesanan dari:
-                                                        <strong><?= ucfirst($siap['tipe_pesanan']) ?></strong></p>
+                                                        <strong><?= ucfirst($siap['tipe_pesanan']) ?></strong>
+                                                    </p>
                                                     <?php if (!empty($siap['catatan'])): ?>
                                                         <div class="catatan-pesanan">
                                                             <strong><i class="fas fa-sticky-note"></i> Catatan:</strong>
