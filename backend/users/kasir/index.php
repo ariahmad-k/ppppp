@@ -66,7 +66,7 @@ $transaksi_pribadi_hari_ini = mysqli_fetch_assoc($result_pribadi)['total'] ?? 0;
                                     <h4 class="card-title">Input Pesanan Baru</h4>
                                     <p class="card-text">Buka Point of Sale untuk transaksi di tempat.</p>
                                 </div>
-                                <a class="card-footer text-center" href="input/input_pesanan.php">
+                                <a class="card-footer text-center" href="pesanan_input.php">
                                     Mulai Transaksi <i class="fas fa-arrow-circle-right"></i>
                                 </a>
                             </div>

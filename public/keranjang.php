@@ -139,8 +139,8 @@ include 'includes/header.php';
 
     /* Mengatur input field di dalam .input-group */
     /* .checkout-form .input-group input { */
-        /* width: 100%; */
-        /* padding: 1.5rem;
+    /* width: 100%; */
+    /* padding: 1.5rem;
         font-size: 1.4rem;
         background: none;
         color: #333; */
@@ -230,12 +230,15 @@ include 'includes/header.php';
                 </div>
                 <div class="input-group">
                     <i data-feather="phone"></i>
-                    <input type="tel" name="no_telepon" placeholder="Nomor Telepon / WA Aktif" required>
+                    <input type="tel" name="no_telepon" placeholder="Nomor Telepon / WA Aktif" required pattern="[0-9]+"
+                        inputmode="numeric">
                 </div>
 
                 <div class="input-group">
                     <i data-feather="file-text"></i>
-                    <textarea name="catatan" placeholder="Catatan untuk pesanan (opsional). Contoh: Kue baloknya setengah matang." rows="3"></textarea>
+                    <textarea name="catatan"
+                        placeholder="Catatan untuk pesanan (opsional). Contoh: Kue baloknya setengah matang."
+                        rows="3"></textarea>
                 </div>
 
                 <input type="hidden" name="cart_data" id="cart-data-input">

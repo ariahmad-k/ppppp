@@ -94,8 +94,10 @@ include 'includes/header.php';
                     <h4>Instruksi Pembayaran</h4>
                     <p>Silakan lakukan pembayaran sebesar <strong>Rp <?= number_format($pesanan['total_harga']) ?></strong> ke salah satu rekening berikut:</p>
                     <p><strong>BCA:</strong> 123-456-7890 a/n Kue Balok Mang Wiro<br>
-                        <strong>GOPAY/DANA:</strong> 081234567890 a/n Mang Wiro
+                        <strong>DANA:</strong> 081234567890 a/n Mang Wiro
                     </p>
+
+                    
 
                     <div class="upload-wrapper">
                         <h5>Upload Bukti Pembayaran Anda</h5>

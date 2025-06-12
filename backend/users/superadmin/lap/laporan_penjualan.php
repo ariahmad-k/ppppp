@@ -214,199 +214,199 @@ if ($jenis_laporan === 'pemasukan') {
                                 </div>
                             </div>
                             <div class="card-body">
-                                <div class="card-body">
-                                    <form method="GET" action="laporan_penjualan.php" id="filterForm">
-                                        <div class="row g-3 align-items-end">
-                                            <div class="col-md-4">
-                                                <label for="jenis_laporan" class="form-label">Jenis Laporan:</label>
-                                                <select class="form-select" name="jenis_laporan" id="jenis_laporan">
-                                                    <option value="pemasukan" <?= $jenis_laporan == 'pemasukan' ? 'selected' : '' ?>>Pemasukan</option>
-                                                    <option value="produk" <?= $jenis_laporan == 'produk' ? 'selected' : '' ?>>Produk</option>
-                                                    <option value="jam_sibuk" <?= $jenis_laporan == 'jam_sibuk' ? 'selected' : '' ?>>Jam Sibuk</option>
-                                                    <option value="kategori_pembayaran" <?= $jenis_laporan == 'kategori_pembayaran' ? 'selected' : '' ?>>Kategori & Pembayaran</option>
-                                                </select>
-                                            </div>
-                                            <div class="col-md-3">
-                                                <label for="periode" class="form-label">Periode:</label>
-                                                <select class="form-select" name="periode" id="periode" onchange="this.form.submit()">
-                                                    <option value="harian" <?= $periode == 'harian' ? 'selected' : '' ?>>Harian</option>
-                                                    <option value="mingguan" <?= $periode == 'mingguan' ? 'selected' : '' ?>>Mingguan</option>
-                                                    <option value="bulanan" <?= $periode == 'bulanan' ? 'selected' : '' ?>>Bulanan</option>
-                                                </select>
-                                            </div>
-                                            <div class="col-md-3">
-                                                <label for="nilai" class="form-label">Pilih Tanggal:</label>
-                                                <?php if ($periode == 'harian'): ?>
-                                                    <input type="date" class="form-control" id="nilai" name="nilai" value="<?= htmlspecialchars($nilai) ?>">
-                                                <?php elseif ($periode == 'mingguan'): ?>
-                                                    <input type="week" class="form-control" id="nilai" name="nilai" value="<?= htmlspecialchars($nilai) ?>">
-                                                <?php else: // bulanan 
-                                                ?>
-                                                    <input type="month" class="form-control" id="nilai" name="nilai" value="<?= htmlspecialchars($nilai) ?>">
-                                                <?php endif; ?>
-                                            </div>
-                                            <div class="col-md-2">
-                                                <button type="submit" class="btn btn-primary w-100">Tampilkan</button>
-                                            </div>
-                                        </div>
-                                    </form>
+                        <div class="card-body">
+                            <form method="GET" action="laporan_penjualan.php" id="filterForm">
+                                <div class="row g-3 align-items-end">
+                                    <div class="col-md-4">
+                                        <label for="jenis_laporan" class="form-label">Jenis Laporan:</label>
+                                        <select class="form-select" name="jenis_laporan" id="jenis_laporan">
+                                            <option value="pemasukan" <?= $jenis_laporan == 'pemasukan' ? 'selected' : '' ?>>Pemasukan</option>
+                                            <option value="produk" <?= $jenis_laporan == 'produk' ? 'selected' : '' ?>>Produk</option>
+                                            <option value="jam_sibuk" <?= $jenis_laporan == 'jam_sibuk' ? 'selected' : '' ?>>Jam Sibuk</option>
+                                            <option value="kategori_pembayaran" <?= $jenis_laporan == 'kategori_pembayaran' ? 'selected' : '' ?>>Kategori & Pembayaran</option>
+                                        </select>
+                                    </div>
+                                    <div class="col-md-3">
+                                        <label for="periode" class="form-label">Periode:</label>
+                                        <select class="form-select" name="periode" id="periode" onchange="this.form.submit()">
+                                            <option value="harian" <?= $periode == 'harian' ? 'selected' : '' ?>>Harian</option>
+                                            <option value="mingguan" <?= $periode == 'mingguan' ? 'selected' : '' ?>>Mingguan</option>
+                                            <option value="bulanan" <?= $periode == 'bulanan' ? 'selected' : '' ?>>Bulanan</option>
+                                        </select>
+                                    </div>
+                                    <div class="col-md-3">
+                                        <label for="nilai" class="form-label">Pilih Tanggal:</label>
+                                        <?php if ($periode == 'harian'): ?>
+                                            <input type="date" class="form-control" id="nilai" name="nilai" value="<?= htmlspecialchars($nilai) ?>">
+                                        <?php elseif ($periode == 'mingguan'): ?>
+                                            <input type="week" class="form-control" id="nilai" name="nilai" value="<?= htmlspecialchars($nilai) ?>">
+                                        <?php else: // bulanan 
+                                        ?>
+                                            <input type="month" class="form-control" id="nilai" name="nilai" value="<?= htmlspecialchars($nilai) ?>">
+                                        <?php endif; ?>
+                                    </div>
+                                    <div class="col-md-2">
+                                        <button type="submit" class="btn btn-primary w-100">Tampilkan</button>
+                                    </div>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+
+                    <h4 class="mt-4">Hasil untuk Periode <?php echo date('d M Y', strtotime($tanggal_mulai)) . ' - ' . date('d M Y', strtotime($tanggal_selesai)); ?></h4>
+
+                    <?php if ($jenis_laporan === 'pemasukan'): ?>
+                        <div class="row">
+                            <div class="col-xl-4 col-md-6">
+                                <div class="card bg-success text-white mb-4">
+                                    <div class="card-body">
+                                        <div class="fs-5">Total Pendapatan</div>
+                                        <div class="fs-3 fw-bold">Rp <?php echo number_format($total_pendapatan, 0, ',', '.'); ?></div>
+                                    </div>
                                 </div>
                             </div>
-
-                            <h4 class="mt-4">Hasil untuk Periode <?php echo date('d M Y', strtotime($tanggal_mulai)) . ' - ' . date('d M Y', strtotime($tanggal_selesai)); ?></h4>
-
-                            <?php if ($jenis_laporan === 'pemasukan'): ?>
-                                <div class="row">
-                                    <div class="col-xl-4 col-md-6">
-                                        <div class="card bg-success text-white mb-4">
-                                            <div class="card-body">
-                                                <div class="fs-5">Total Pendapatan</div>
-                                                <div class="fs-3 fw-bold">Rp <?php echo number_format($total_pendapatan, 0, ',', '.'); ?></div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <div class="col-xl-4 col-md-6">
-                                        <div class="card bg-primary text-white mb-4">
-                                            <div class="card-body">
-                                                <div class="fs-5">Jumlah Transaksi</div>
-                                                <div class="fs-3 fw-bold"><?php echo $jumlah_transaksi; ?></div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <div class="col-xl-4 col-md-6">
-                                        <div class="card bg-warning text-dark mb-4">
-                                            <div class="card-body">
-                                                <div class="fs-5">Total Item Terjual</div>
-                                                <div class="fs-3 fw-bold"><?php echo $total_item_terjual; ?></div>
-                                            </div>
-                                        </div>
+                            <div class="col-xl-4 col-md-6">
+                                <div class="card bg-primary text-white mb-4">
+                                    <div class="card-body">
+                                        <div class="fs-5">Jumlah Transaksi</div>
+                                        <div class="fs-3 fw-bold"><?php echo $jumlah_transaksi; ?></div>
                                     </div>
                                 </div>
-                                <div class="card mb-4">
-                                    <div class="card-header"><i class="fas fa-table me-1"></i>Rincian Transaksi</div>
+                            </div>
+                            <div class="col-xl-4 col-md-6">
+                                <div class="card bg-warning text-dark mb-4">
                                     <div class="card-body">
-                                        <table id="datatablesSimple">
+                                        <div class="fs-5">Total Item Terjual</div>
+                                        <div class="fs-3 fw-bold"><?php echo $total_item_terjual; ?></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="card mb-4">
+                            <div class="card-header"><i class="fas fa-table me-1"></i>Rincian Transaksi</div>
+                            <div class="card-body">
+                                <table id="datatablesSimple">
+                                    <thead>
+                                        <tr>
+                                            <th>Tanggal</th>
+                                            <th>Waktu</th>
+                                            <th>No. Pesanan</th>
+                                            <th>Total</th>
+                                            <th>Kasir</th>
+                                            <th>Aksi</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <?php foreach ($daftar_transaksi as $transaksi): ?>
+                                            <tr>
+                                                <td><?php echo date('d/m/Y', strtotime($transaksi['tgl_pesanan'])); ?></td>
+                                                <td><?php echo date('H:i:s', strtotime($transaksi['tgl_pesanan'])); ?></td>
+                                                <td><?php echo htmlspecialchars($transaksi['id_pesanan']); ?></td>
+                                                <td>Rp <?php echo number_format($transaksi['total_harga'], 0, ',', '.'); ?></td>
+                                                <td><?php echo htmlspecialchars($transaksi['nama_kasir']); ?></td>
+                                                <td>
+                                                    <button type="button" class="btn btn-sm btn-info detail-btn"
+                                                        data-bs-toggle="modal"
+                                                        data-bs-target="#detailPesananModal"
+                                                        data-id-pesanan="<?= htmlspecialchars($transaksi['id_pesanan']) ?>">
+                                                        Detail
+                                                    </button>
+                                                </td>
+                                            </tr>
+                                        <?php endforeach; ?>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+
+                    <?php elseif ($jenis_laporan === 'produk'): ?>
+                        <div class="row">
+                            <div class="col-lg-6">
+                                <div class="card mb-4">
+                                    <div class="card-header bg-success text-white"><i class="fas fa-star me-1"></i>10 Produk Terlaris</div>
+                                    <div class="card-body">
+                                        <table class="table table-striped table-hover">
                                             <thead>
                                                 <tr>
-                                                    <th>Tanggal</th>
-                                                    <th>Waktu</th>
-                                                    <th>No. Pesanan</th>
-                                                    <th>Total</th>
-                                                    <th>Kasir</th>
-                                                    <th>Aksi</th>
+                                                    <th>#</th>
+                                                    <th>Nama Produk</th>
+                                                    <th class="text-end">Jumlah Terjual</th>
                                                 </tr>
                                             </thead>
                                             <tbody>
-                                                <?php foreach ($daftar_transaksi as $transaksi): ?>
+                                                <?php if (!empty($produk_terlaris)): ?>
+                                                    <?php foreach ($produk_terlaris as $index => $produk): ?>
+                                                        <tr>
+                                                            <th><?= $index + 1 ?></th>
+                                                            <td><?= htmlspecialchars($produk['nama_produk']) ?></td>
+                                                            <td class="text-end"><strong><?= htmlspecialchars($produk['total_terjual']) ?></strong></td>
+                                                        </tr>
+                                                    <?php endforeach; ?>
+                                                <?php else: ?>
                                                     <tr>
-                                                        <td><?php echo date('d/m/Y', strtotime($transaksi['tgl_pesanan'])); ?></td>
-                                                        <td><?php echo date('H:i:s', strtotime($transaksi['tgl_pesanan'])); ?></td>
-                                                        <td><?php echo htmlspecialchars($transaksi['id_pesanan']); ?></td>
-                                                        <td>Rp <?php echo number_format($transaksi['total_harga'], 0, ',', '.'); ?></td>
-                                                        <td><?php echo htmlspecialchars($transaksi['nama_kasir']); ?></td>
-                                                        <td>
-                                                            <button type="button" class="btn btn-sm btn-info detail-btn"
-                                                                data-bs-toggle="modal"
-                                                                data-bs-target="#detailPesananModal"
-                                                                data-id-pesanan="<?= htmlspecialchars($transaksi['id_pesanan']) ?>">
-                                                                Detail
-                                                            </button>
-                                                        </td>
+                                                        <td colspan="3" class="text-center">Tidak ada data.</td>
                                                     </tr>
-                                                <?php endforeach; ?>
+                                                <?php endif; ?>
                                             </tbody>
                                         </table>
                                     </div>
                                 </div>
-
-                            <?php elseif ($jenis_laporan === 'produk'): ?>
-                                <div class="row">
-                                    <div class="col-lg-6">
-                                        <div class="card mb-4">
-                                            <div class="card-header bg-success text-white"><i class="fas fa-star me-1"></i>10 Produk Terlaris</div>
-                                            <div class="card-body">
-                                                <table class="table table-striped table-hover">
-                                                    <thead>
-                                                        <tr>
-                                                            <th>#</th>
-                                                            <th>Nama Produk</th>
-                                                            <th class="text-end">Jumlah Terjual</th>
-                                                        </tr>
-                                                    </thead>
-                                                    <tbody>
-                                                        <?php if (!empty($produk_terlaris)): ?>
-                                                            <?php foreach ($produk_terlaris as $index => $produk): ?>
-                                                                <tr>
-                                                                    <th><?= $index + 1 ?></th>
-                                                                    <td><?= htmlspecialchars($produk['nama_produk']) ?></td>
-                                                                    <td class="text-end"><strong><?= htmlspecialchars($produk['total_terjual']) ?></strong></td>
-                                                                </tr>
-                                                            <?php endforeach; ?>
-                                                        <?php else: ?>
-                                                            <tr>
-                                                                <td colspan="3" class="text-center">Tidak ada data.</td>
-                                                            </tr>
-                                                        <?php endif; ?>
-                                                    </tbody>
-                                                </table>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <div class="col-lg-6">
-                                        <div class="card mb-4">
-                                            <div class="card-header bg-danger text-white"><i class="fas fa-thumbs-down me-1"></i>10 Produk Kurang Diminati</div>
-                                            <div class="card-body">
-                                                <table class="table table-striped table-hover">
-                                                    <thead>
-                                                        <tr>
-                                                            <th>#</th>
-                                                            <th>Nama Produk</th>
-                                                            <th class="text-end">Jumlah Terjual</th>
-                                                        </tr>
-                                                    </thead>
-                                                    <tbody>
-                                                        <?php if (!empty($produk_kurang_laku)): ?>
-                                                            <?php foreach ($produk_kurang_laku as $index => $produk): ?>
-                                                                <tr>
-                                                                    <th><?= $index + 1 ?></th>
-                                                                    <td><?= htmlspecialchars($produk['nama_produk']) ?></td>
-                                                                    <td class="text-end"><strong><?= htmlspecialchars($produk['total_terjual']) ?></strong></td>
-                                                                </tr>
-                                                            <?php endforeach; ?>
-                                                        <?php else: ?>
-                                                            <tr>
-                                                                <td colspan="3" class="text-center">Tidak ada data.</td>
-                                                            </tr>
-                                                        <?php endif; ?>
-                                                    </tbody>
-                                                </table>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-
-                            <?php elseif ($jenis_laporan === 'jam_sibuk'): ?>
+                            </div>
+                            <div class="col-lg-6">
                                 <div class="card mb-4">
-                                    <div class="card-header bg-primary text-white"><i class="fas fa-clock me-1"></i>Grafik Jumlah Transaksi per Jam</div>
-                                    <div class="card-body"><canvas id="jamSibukChart"></canvas></div>
+                                    <div class="card-header bg-danger text-white"><i class="fas fa-thumbs-down me-1"></i>10 Produk Kurang Diminati</div>
+                                    <div class="card-body">
+                                        <table class="table table-striped table-hover">
+                                            <thead>
+                                                <tr>
+                                                    <th>#</th>
+                                                    <th>Nama Produk</th>
+                                                    <th class="text-end">Jumlah Terjual</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                <?php if (!empty($produk_kurang_laku)): ?>
+                                                    <?php foreach ($produk_kurang_laku as $index => $produk): ?>
+                                                        <tr>
+                                                            <th><?= $index + 1 ?></th>
+                                                            <td><?= htmlspecialchars($produk['nama_produk']) ?></td>
+                                                            <td class="text-end"><strong><?= htmlspecialchars($produk['total_terjual']) ?></strong></td>
+                                                        </tr>
+                                                    <?php endforeach; ?>
+                                                <?php else: ?>
+                                                    <tr>
+                                                        <td colspan="3" class="text-center">Tidak ada data.</td>
+                                                    </tr>
+                                                <?php endif; ?>
+                                            </tbody>
+                                        </table>
+                                    </div>
                                 </div>
+                            </div>
+                        </div>
 
-                            <?php elseif ($jenis_laporan === 'kategori_pembayaran'): ?>
-                                <div class="row">
-                                    <div class="col-lg-6">
-                                        <div class="card mb-4">
-                                            <div class="card-header bg-info text-white"><i class="fas fa-tags me-1"></i>Pendapatan per Tipe Produk</div>
-                                            <div class="card-body"><canvas id="tipeProdukChart" height="200"></canvas></div>
-                                        </div>
-                                    </div>
-                                    <div class="col-lg-6">
-                                        <div class="card mb-4">
-                                            <div class="card-header bg-warning text-dark"><i class="fas fa-credit-card me-1"></i>Popularitas Metode Pembayaran</div>
-                                            <div class="card-body"><canvas id="pembayaranChart" height="200"></canvas></div>
-                                        </div>
-                                    </div>
+                    <?php elseif ($jenis_laporan === 'jam_sibuk'): ?>
+                        <div class="card mb-4">
+                            <div class="card-header bg-primary text-white"><i class="fas fa-clock me-1"></i>Grafik Jumlah Transaksi per Jam</div>
+                            <div class="card-body"><canvas id="jamSibukChart"></canvas></div>
+                        </div>
+
+                    <?php elseif ($jenis_laporan === 'kategori_pembayaran'): ?>
+                        <div class="row">
+                            <div class="col-lg-6">
+                                <div class="card mb-4">
+                                    <div class="card-header bg-info text-white"><i class="fas fa-tags me-1"></i>Pendapatan per Tipe Produk</div>
+                                    <div class="card-body"><canvas id="tipeProdukChart" height="200"></canvas></div>
                                 </div>
-                            <?php endif; ?>
+                            </div>
+                            <div class="col-lg-6">
+                                <div class="card mb-4">
+                                    <div class="card-header bg-warning text-dark"><i class="fas fa-credit-card me-1"></i>Popularitas Metode Pembayaran</div>
+                                    <div class="card-body"><canvas id="pembayaranChart" height="200"></canvas></div>
+                                </div>
+                            </div>
+                        </div>
+                    <?php endif; ?>
             </main>
         </div>
     </div>
