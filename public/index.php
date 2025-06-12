@@ -48,7 +48,7 @@ if (!$result_produk) {
 
 <section class="hero" id="home">
     <main class="content">
-        <h1>Ngopi, Nga<span>Balok</span>, Ngawadul </h1>
+        <h1>Ngopi, Nga<span>Balok</span>, Ngawadoel </h1>
         <p>Rasakan kelezatan kue balok lumer khas kami yang legendaris.</p>
         <a href="menu.php" class="cta">Pesan Sekarang</a>
     </main>
