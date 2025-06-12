@@ -64,9 +64,6 @@ if (!$pesanan) {
 $page_title = "Konfirmasi Pesanan";
 include 'includes/header.php';
 
-$sql_metode = "SELECT * FROM metode_pembayaran WHERE status = 'aktif'";
-$result_metode = mysqli_query($koneksi, $sql_metode);
-
 
 ?>
 
@@ -95,25 +92,10 @@ $result_metode = mysqli_query($koneksi, $sql_metode);
                     <hr style="margin: 2rem 0;">
 
                     <h4>Instruksi Pembayaran</h4>
-                    <h5>Pilih Metode Pembayaran:</h5>
-                    <?php while ($metode = mysqli_fetch_assoc($result_metode)): ?>
-                        <div class="form-check">
-                            <input class="form-check-input" type="radio" name="metode_pembayaran" id="metode_<?= $metode['id_metode'] ?>" value="<?= $metode['nama_metode'] ?>"
-                                data-atas-nama="<?= $metode['atas_nama'] ?>"
-                                data-nomor="<?= $metode['nomor_tujuan'] ?>"
-                                data-gambar="<?= $metode['gambar_path'] ?>">
-                            <label class="form-check-label" for="metode_<?= $metode['id_metode'] ?>">
-                                <?= $metode['nama_metode'] ?>
-                            </label>
-                        </div>
-                    <?php endwhile; ?>
-
-                    <div id="detail-pembayaran" style="display:none; margin-top: 1rem; padding: 1rem; background-color: #f8f9fa;">
-                        <p>Silakan lakukan pembayaran ke:</p>
-                        <strong id="info-atas-nama"></strong><br>
-                        <strong id="info-nomor"></strong>
-                        <img src="" id="info-gambar" style="max-width: 200px; display:none;">
-                    </div>
+                    <p>Silakan lakukan pembayaran sebesar <strong>Rp <?= number_format($pesanan['total_harga']) ?></strong> ke salah satu rekening berikut:</p>
+                    <p><strong>BCA:</strong> 123-456-7890 a/n Kue Balok Mang Wiro<br>
+                        <strong>GOPAY/DANA:</strong> 081234567890 a/n Mang Wiro
+                    </p>
 
                     <div class="upload-wrapper">
                         <h5>Upload Bukti Pembayaran Anda</h5>
@@ -142,24 +124,6 @@ $result_metode = mysqli_query($koneksi, $sql_metode);
     </div>
 </section>
 
-<script>
-    document.querySelectorAll('input[name="metode_pembayaran"]').forEach(radio => {
-        radio.addEventListener('change', function() {
-            document.getElementById('detail-pembayaran').style.display = 'block';
-            document.getElementById('info-atas-nama').textContent = "A/N: " + this.dataset.atasNama;
-            document.getElementById('info-nomor').textContent = "Nomor: " + this.dataset.nomor;
-
-            const imgEl = document.getElementById('info-gambar');
-            if (this.dataset.gambar) {
-                // Ganti path ini jika perlu
-                imgEl.src = '../backend/assets/img/metode_bayar/' + this.dataset.gambar;
-                imgEl.style.display = 'block';
-            } else {
-                imgEl.style.display = 'none';
-            }
-        });
-    });
-</script>
 <?php
 include 'includes/footer.php';
 ?>
