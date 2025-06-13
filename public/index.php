@@ -148,7 +148,7 @@ if (!$result_produk) {
             </div>
             <div class="input-group">
                 <i data-feather="message-square"></i>
-                <input type="text" name="pesan" placeholder="Pesan & Kesan Anda" required>
+                <input type="text" name="pesan" placeholder="Kritik dan Saran" required>
             </div>
             <button type="submit" name="kirim_pesan" class="btn">Kirim Pesan</button>
         </form>

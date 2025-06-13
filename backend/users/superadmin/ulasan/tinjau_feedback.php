@@ -45,7 +45,7 @@ if ($result) {
     <meta charset="utf-8" />
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
-    <title>Tinjau Feedback - Owner</title>
+    <title>Tinjau Masukan & Saran - Owner</title>
     <link href="../../../css/styles.css" rel="stylesheet" />
     <script src="https://use.fontawesome.com/releases/v6.3.0/js/all.js" crossorigin="anonymous"></script>
     <link rel="icon" type="image/png" href="../../../assets/img/logo-kuebalok.png"> 
@@ -60,15 +60,15 @@ if ($result) {
         <div id="layoutSidenav_content">
             <main>
                 <div class="container-fluid px-4">
-                    <h1 class="mt-4">Tinjau Feedback Pelanggan</h1>
+                    <h1 class="mt-4">Tinjau Masukan & Saran Pelanggan</h1>
                     <ol class="breadcrumb mb-4">
                         <li class="breadcrumb-item"><a href="../index.php">Dashboard</a></li>
-                        <li class="breadcrumb-item active">Feedback</li>
+                        <li class="breadcrumb-item active">Masukan & Saran</li>
                     </ol>
 
                     <?php if(isset($_GET['status']) && $_GET['status'] == 'dihapus'): ?>
                         <div class="alert alert-success alert-dismissible fade show" role="alert">
-                            Feedback berhasil dihapus.
+                            PEsan berhasil dihapus.
                             <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
                         </div>
                     <?php endif; ?>
@@ -117,7 +117,7 @@ if ($result) {
                                     <?php endforeach; ?>
                                 </div>
                             <?php else: ?>
-                                <div class="alert alert-info text-center">Belum ada feedback yang masuk.</div>
+                                <div class="alert alert-info text-center">Belum ada pesan yang masuk.</div>
                             <?php endif; ?>
                         </div>
                     </div>

@@ -36,7 +36,7 @@ if (session_status() == PHP_SESSION_NONE) {
 
             <a class="nav-link" href="../ulasan/tinjau_feedback.php">
                 <div class="sb-nav-link-icon"><i class="fas fa-comment-alt"></i></div>
-                Umpan Balik
+                Masukan & Saran
             </a>
         </div>
     </div>
