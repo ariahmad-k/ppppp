@@ -22,8 +22,6 @@ body {
   color: #304358;
 }
 
-
-
 /* Navbar */
 .navbar {
   display: flex;
@@ -38,7 +36,6 @@ body {
   right: 0;
   z-index: 9999;
 }
-
 
 .navbar .navbar-logo {
   position: relative;
@@ -580,12 +577,14 @@ footer .socials {
 
 footer .socials i {
   color: #fff;
-  margin: 0rem;
+  margin: 0 0.8rem;
+  font-size: 2rem;
 }
 
 footer .socials a:hover,
-footer .links a:hover {
-  color: var(--bg);
+footer .links a:hover,
+footer .socials i:hover {
+  color: #d8dee4;
 }
 
 footer .links {
@@ -1083,4 +1082,3 @@ footer .credit p {
 .progress-step.completed::after {
   background-color: #198754; /* Garis Hijau */
 }
-

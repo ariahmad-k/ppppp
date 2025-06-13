@@ -27,10 +27,8 @@ include __DIR__ . '/../../backend/cek_kadaluarsa.php';
 
     <link rel="stylesheet" href="assets/css/style.css" />
     <link rel="icon" type="image/png" href="assets/img/logo-kuebalok.png">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
 
-    <style>
-
-    </style>
 </head>
 
 <body>

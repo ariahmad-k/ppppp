@@ -1,14 +1,9 @@
     <footer>
         <div class="socials">
-            <a href="https://www.instagram.com/kuebalokmangwiro/" target="_blank">
-                <i data-feather="instagram"></i>
-            </a>
-            </div>
-        <div class="socials">
-            <a href="https://www.instagram.com/kuebalokmangwiro/" target="_blank">
-                <i data-feather="phone"></i>
-            </a>
-            </div>
+            <a href="https://www.instagram.com/kuebalokmangwiro/" target="_blank"><i class="fa-brands fa-instagram fa-lg"></i></a>
+            <a href="https://wa.me/1XXXXXXXXXX" target="_blank"><i class="fa-brands fa-whatsapp fa-lg"></i></a>
+            <a href="https://www.tiktok.com/@kuebalokmangwiro" target="_blank"><i class="fa-brands fa-tiktok fa-lg"></i></a>
+        </div>
 
         <div class="links">
             <a href="index.php#home">Home</a>
@@ -20,7 +15,10 @@
         </div>
 
         <div class="credit">
-            <p>Created by <a href="">Kue Mang Wiro</a>. | &copy; 2025.</p>
+            <p>Created by <a href="">TechGrow Solution's </a>. | &copy; 2025.</p>
+            <p><a href="https://www.instagram.com/politekniknegerisubang?igsh=MWRmaWRtOGNsemY0cw==">Politeknik Negeri Subang </a>&copy; Kue Balok Mang Wiro
+                <br>All Rights reserved.
+            </p>
         </div>
     </footer>
     <script>
@@ -28,5 +26,6 @@
     </script>
 
     <script src="assets/js/script.js"></script>
-</body>
-</html>
+    </body>
+
+    </html>
