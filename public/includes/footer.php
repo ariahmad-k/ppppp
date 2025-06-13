@@ -1,30 +1,32 @@
-<footer class="footer">
-    <div class="footer-container">
-    
-        <div class="footer-col">
-            <h4>Navigasi</h4>
-            <ul>
-                <li><a href="#home">Home</a></li>
-                <li><a href="#tentang">Tentang Kami</a></li>
-                <li><a href="#menu">Menu</a></li>
-                <li><a href="#lacak">Lacak Pesanan</a></li>
-                <li><a href="#faq">FAQ</a></li>
-                <li><a href="#kontak">Kontak</a></li>
-            </ul>
+    <footer>
+        <div class="socials">
+            <a href="https://www.instagram.com/kuebalokmangwiro/" target="_blank">
+                <i data-feather="instagram"></i>
+            </a>
+            </div>
+        <div class="socials">
+            <a href="https://www.instagram.com/kuebalokmangwiro/" target="_blank">
+                <i data-feather="phone"></i>
+            </a>
+            </div>
+
+        <div class="links">
+            <a href="index.php#home">Home</a>
+            <a href="index.php#about">Tentang Kami</a>
+            <a href="menu.php">Menu</a>
+            <a href="lacak.php">Lacak Pesanan</a>
+            <a href="index.php#faq">FAQ</a>
+            <a href="index.php#contact">Kontak</a>
         </div>
-    </div>
 
-    <div class="footer-bottom">
-        <p>Created by <strong>TechGrow Solution's</strong> – Kelompok 3, 2025<br>Politeknik Negeri Subang</p>
-        <p>© 2025 Kue Balok Mang Wiro. All rights reserved.</p>
-    </div>
-</footer>
+        <div class="credit">
+            <p>Created by <a href="">Kue Mang Wiro</a>. | &copy; 2025.</p>
+        </div>
+    </footer>
+    <script>
+        feather.replace();
+    </script>
 
-<script>
-    feather.replace();
-</script>
-
-<script src="assets/js/script.js"></script>
+    <script src="assets/js/script.js"></script>
 </body>
-
 </html>

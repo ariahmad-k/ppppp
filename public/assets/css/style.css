@@ -22,13 +22,15 @@ body {
   color: #304358;
 }
 
+
+
 /* Navbar */
 .navbar {
   display: flex;
   justify-content: space-between;
   align-items: center;
   padding: 1.4rem 2rem;
-  background-color: rgba(48, 67, 88, 255);
+  background-color: var(--primary);
   border-bottom: 1px solid #ffff;
   position: fixed;
   top: 0;
@@ -36,6 +38,7 @@ body {
   right: 0;
   z-index: 9999;
 }
+
 
 .navbar .navbar-logo {
   position: relative;
@@ -57,7 +60,7 @@ body {
 }
 
 .navbar .navbar-nav a:hover {
-  color: var(--primary);
+  color: #d8dee4;
 }
 
 .navbar .navbar-nav a::after {
