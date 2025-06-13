@@ -1,7 +1,7 @@
     <footer>
         <div class="socials">
             <a href="https://www.instagram.com/kuebalokmangwiro/" target="_blank"><i class="fa-brands fa-instagram fa-lg"></i></a>
-            <a href="https://wa.me/1XXXXXXXXXX" target="_blank"><i class="fa-brands fa-whatsapp fa-lg"></i></a>
+            <a href="https://wa.me/6281222572886" target="_blank"><i class="fa-brands fa-whatsapp fa-lg"></i></a>
             <a href="https://www.tiktok.com/@kuebalokmangwiro" target="_blank"><i class="fa-brands fa-tiktok fa-lg"></i></a>
         </div>
 

@@ -11,24 +11,18 @@ if (isset($_SESSION['user'])) {
     exit;
 }
 
-
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
-    $username = $_POST['nama']; // Menggunakan 'nama' sesuai form Anda
+    $username = $_POST['nama'];
     $password = $_POST['password'];
 
     if (!empty($username) && !empty($password)) {
-        // 1. Gunakan PREPARED STATEMENT untuk mencegah SQL Injection
         $stmt = mysqli_prepare($koneksi, "SELECT id_karyawan, nama, username, password, jabatan FROM karyawan WHERE username = ?");
         mysqli_stmt_bind_param($stmt, "s", $username);
         mysqli_stmt_execute($stmt);
         $result = mysqli_stmt_get_result($stmt);
         $data = mysqli_fetch_assoc($result);
 
-        // 2. Verifikasi password dengan password_verify()
         if ($data && password_verify($password, $data['password'])) {
-            // Jika login berhasil
-            
-            // 3. Simpan data ke Sesi dengan struktur yang benar
             $_SESSION['user'] = [
                 'id'       => $data['id_karyawan'],
                 'nama'     => $data['nama'],
@@ -36,7 +30,6 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                 'jabatan'  => $data['jabatan']
             ];
 
-            // 4. Arahkan ke halaman berdasarkan jabatan
             $jabatan = strtolower($data['jabatan']);
             switch ($jabatan) {
                 case 'owner':
@@ -52,7 +45,6 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                     $error = "Jabatan tidak dikenali.";
             }
         } else {
-            // Jika username tidak ditemukan atau password salah
             $error = "Username atau password salah.";
         }
     } else {
@@ -61,19 +53,23 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 }
 ?>
 
-<!doctype html>
+<!DOCTYPE html>
 <html lang="id">
 <head>
-    <title>Login - Kue Balok</title>
-    <link href="assets/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link href="assets/dist/css/floating-labels.css" rel="stylesheet">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login - Kue Balok Mang Wiro</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.6/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="assets/css/style.css" rel="stylesheet">
 </head>
 <body>
-    <form class="form-signin" action="login.php" method="post">
-        <div class="text-center mb-4">
-            <img class="mb-4" src="assets/img/logo-kuebalok.png" alt="" width="72" height="72">
-            <h1 class="h3 mb-3 font-weight-normal">Form Login</h1>
-            <p>Masukkan Username dan Password Anda</p>
+    <div class="login-container">
+        <div class="text-center">
+            <img class="login-logo" src="assets/img/logo-kuebalok.png" alt="Logo Kue Balok">
+            <h1 class="login-title">Welcome Back!</h1>
+            <p class="login-subtitle">Silakan login untuk melanjutkan</p>
+            
             <?php if ($error): ?>
                 <div class="alert alert-danger" role="alert">
                     <?= htmlspecialchars($error) ?>
@@ -81,18 +77,25 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             <?php endif; ?>
         </div>
 
-        <div class="form-label-group">
-            <input type="text" class="form-control" name="nama" placeholder="Username" required autofocus>
-            <label for="nama">Masukkan Username</label>
-        </div>
+        <form action="login.php" method="post">
+            <div class="form-label-group">
+                <input type="text" id="nama" name="nama" class="form-control" placeholder=" " required autofocus>
+                <label for="nama">Username</label>
+            </div>
 
-        <div class="form-label-group">
-            <input type="password" class="form-control" name="password" placeholder="Password" required>
-            <label for="password">Masukkan Password</label>
-        </div>
+            <div class="form-label-group">
+                <input type="password" id="password" name="password" class="form-control" placeholder=" " required>
+                <label for="password">Password</label>
+            </div>
 
-        <button class="btn btn-lg btn-primary btn-block" type="submit">Sign in</button>
-        <p class="mt-5 mb-3 text-muted text-center">&copy; Kue Balok Mang Wiro 2025</p>
-    </form>
+            <button class="login-btn" type="submit">Sign In</button>
+        </form>
+
+        <div class="login-footer text-center">
+            &copy; <?= date('Y') ?> Kue Balok Mang Wiro. All rights reserved.
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.6/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>
