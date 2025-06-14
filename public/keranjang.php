@@ -148,7 +148,8 @@ include 'includes/header.php';
 
     /* Mengatur input field & textarea di dalam .input-group */
     .checkout-form .input-group input,
-    .checkout-form .input-group textarea {
+    .checkout-form .input-group textarea,
+    .checkout-form .input-group select {
         width: 100%;
         padding: 1.5rem;
         font-size: 1.4rem;
@@ -162,6 +163,10 @@ include 'includes/header.php';
         /* Izinkan user mengubah tinggi, tapi tidak lebar */
         font-family: inherit;
         /* Pastikan font sama dengan elemen lain */
+        appearance: none;
+        -webkit-appearance: none;
+        -moz-appearance: none;
+
     }
 
     /* Mengatur ikon feather */
@@ -190,6 +195,17 @@ include 'includes/header.php';
     .checkout-form .btn:hover {
         background-color: #c89a6f;
         /* Warna hover, sesuaikan jika perlu */
+    }
+
+    /* === CSS TAMBAHAN UNTUK PANAH DROPDOWN === */
+    .checkout-form .input-group select {
+        cursor: pointer;
+        background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3e%3cpath fill='none' stroke='%23343a40' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M2 5l6 6 6-6'/%3e%3c/svg%3e");
+        background-repeat: no-repeat;
+        background-position: right 1.5rem center;
+        background-size: 1.2em;
+        padding-right: 4rem;
+        /* Memberi ruang agar teks tidak tertutup panah */
     }
 </style>
 <?php
@@ -233,6 +249,16 @@ include 'includes/header.php';
                     <input type="tel" name="no_telepon" placeholder="Nomor Telepon / WA Aktif" required pattern="[0-9]+"
                         inputmode="numeric">
                 </div>
+
+                <div class="input-group">
+                    <i data-feather="list"></i>
+                    <select name="jenis_pesanan" required>
+                        <option value="" disabled selected>Pilih Jenis Pesanan</option>
+                        <option value="take_away">Take away</option>
+                        <option value="dine_in">Dine in</option>
+                    </select>
+                </div>
+
 
                 <div class="input-group">
                     <i data-feather="file-text"></i>

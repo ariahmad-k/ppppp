@@ -257,7 +257,7 @@ include 'includes/header.php';
                         enctype="multipart/form-data">
                         <input type="hidden" name="id_pesanan" value="<?= htmlspecialchars($pesanan['id_pesanan']) ?>">
                         <div class="my-3">
-                            <input type="file" name="bukti_pembayaran" class="form-control" required>
+                            <input type="file" name="bukti_pembayaran" class="form-control" accept="image/jpeg, image/png, image/jpg" required>
                         </div>
                         <button type="submit" class="btn btn-primary w-100">Kirim Bukti Pembayaran</button>
                     </form>
