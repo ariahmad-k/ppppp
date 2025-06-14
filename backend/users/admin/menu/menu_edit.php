@@ -133,7 +133,7 @@ if (isset($_POST['submit'])) {
                                 </div>
                                 <div class="mb-3">
                                     <label for="gambar" class="form-label">Upload Gambar Baru (Kosongkan jika tidak ingin diubah)</label>
-                                    <input class="form-control" type="file" name="gambar" id="gambar">
+                                    <input class="form-control" type="file" name="gambar" id="gambar" accept="image/jpeg, image/png, image/jpg">
                                 </div>
                                 <button type="submit" name="submit" class="btn btn-primary">Simpan Perubahan</button>
                                 <a href="data_menu.php" class="btn btn-secondary">Batal</a>

@@ -144,7 +144,7 @@ $result = mysqli_query($koneksi, "SELECT * FROM produk ORDER BY kategori, nama_p
                                         </div>
                                         <div class="mb-3">
                                             <label for="gambar" class="form-label">Upload Gambar</label>
-                                            <input class="form-control" type="file" name="gambar" id="gambar" required>
+                                            <input class="form-control" type="file" name="gambar" id="gambar" accept="image/jpeg, image/png, image/jpg" required>
                                         </div>
                                     </div>
                                 </div>
