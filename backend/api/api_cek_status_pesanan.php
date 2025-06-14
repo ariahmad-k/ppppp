@@ -1,6 +1,6 @@
 <?php
 header('Content-Type: application/json');
-include '../../koneksi.php';
+include '../koneksi.php';
 
 // Ambil daftar ID pesanan dari request POST
 $ids_to_check = json_decode(file_get_contents('php://input'), true)['ids'] ?? [];

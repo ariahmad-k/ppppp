@@ -23,7 +23,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $result_beban = mysqli_query($koneksi, $sql_beban);
             $beban_dapur = mysqli_fetch_assoc($result_beban)['total_item_aktif'] ?? 0;
 
-            $status_baru = ($beban_dapur < 50) ? 'diproses' : 'pending';
+            $status_baru = ($beban_dapur < 20) ? 'diproses' : 'pending';
 
             $stmt_update = mysqli_prepare($koneksi, "UPDATE pesanan SET status_pesanan = ?, id_karyawan = ? WHERE id_pesanan = ? AND status_pesanan = 'menunggu_konfirmasi'");
             mysqli_stmt_bind_param($stmt_update, "sis", $status_baru, $id_kasir_yang_validasi, $id_pesanan);
@@ -70,7 +70,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             // 4. Jika semua berhasil, simpan perubahan
             mysqli_commit($koneksi);
             $_SESSION['notif'] = ['pesan' => "Pesanan #$id_pesanan telah dibatalkan dan stok berhasil dikembalikan.", 'tipe' => 'warning'];
-
         } catch (Exception $e) {
             // Jika ada error, batalkan semua perubahan
             mysqli_rollback($koneksi);
@@ -109,9 +108,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
 // 3. LOGIKA PENGAMBILAN DATA UNTUK DITAMPILKAN
 // a. Ambil pesanan online yang butuh konfirmasi
-$sql_online = "SELECT * FROM pesanan WHERE status_pesanan = 'menunggu_konfirmasi' ORDER BY tgl_pesanan ASC";
-$result_online = mysqli_query($koneksi, $sql_online);
-$pesanan_online = mysqli_fetch_all($result_online, MYSQLI_ASSOC);
+$sql_pesanan_baru = "SELECT * FROM pesanan 
+                     WHERE status_pesanan IN ('menunggu_pembayaran', 'menunggu_konfirmasi') 
+                     ORDER BY tgl_pesanan ASC";
+$pesanan_online = mysqli_fetch_all(mysqli_query($koneksi, $sql_pesanan_baru), MYSQLI_ASSOC);
 
 // b. Ambil pesanan di antrean dapur
 $sql_antrean = "SELECT * FROM pesanan WHERE status_pesanan IN ('pending', 'diproses') ORDER BY FIELD(status_pesanan, 'diproses', 'pending'), tgl_pesanan ASC";
@@ -209,18 +209,29 @@ if (!empty($all_pesanan_ids)) {
                     <div class="row">
                         <div class="col-lg-4">
                             <div class="card mb-4">
-                                <div class="card-header bg-primary text-white"><i
-                                        class="fas fa-money-check-alt me-1"></i>Validasi Pesanan Online</div>
+                                <div class="card-header bg-primary text-white"><i class="fas fa-inbox me-1"></i>Pesanan Online Masuk (<?= count($pesanan_online) ?>)</div>
                                 <div class="card-body" style="max-height: 70vh; overflow-y: auto;">
-                                    <?php if (!empty($pesanan_online)): ?>
-                                        <?php foreach ($pesanan_online as $pesanan): ?>
+                                    <?php if (empty($pesanan_online)): ?>
+                                        <p class="text-center text-muted">Tidak ada pesanan online yang masuk.</p>
+                                        <?php else: foreach ($pesanan_online as $pesanan): ?>
+
                                             <div class="card mb-3" id="pesanan-<?= htmlspecialchars($pesanan['id_pesanan']) ?>">
                                                 <div class="card-body">
-                                                    <h5 class="card-title"><?= htmlspecialchars($pesanan['nama_pemesan']) ?>
-                                                    </h5>
-                                                    <h6 class="card-subtitle mb-2 text-muted">
-                                                        <?= htmlspecialchars($pesanan['id_pesanan']) ?>
-                                                    </h6>
+                                                    <div class="d-flex justify-content-between">
+                                                        <h5 class="card-title"><?= htmlspecialchars($pesanan['nama_pemesan']) ?></h5>
+                                                        <span id="status-label-<?= htmlspecialchars($pesanan['id_pesanan']) ?>" class="badge bg-<?= ($pesanan['status_pesanan'] == 'menunggu_pembayaran') ? 'secondary' : 'info' ?>">
+                                                            <?= str_replace('_', ' ', $pesanan['status_pesanan']) ?>
+                                                        </span>
+                                                    </div>
+                                                    <h6 class="card-subtitle mb-2 text-muted"><?= htmlspecialchars($pesanan['id_pesanan']) ?></h6>
+                                                    <?php
+                                                    if ($pesanan['jenis_pesanan'] == 'take_away') {
+                                                        $pesanan['jenis_pesanan'] = 'PESANAN TAKE AWAY';
+                                                    } elseif ($pesanan['jenis_pesanan'] == 'dine_in') {
+                                                        $pesanan['jenis_pesanan'] = 'PESANAN DINE IN';
+                                                    }
+                                                    ?>
+                                                    <h6 class="card-subtitle mb-2 text-muted"><?= htmlspecialchars($pesanan['jenis_pesanan']) ?></h6>
 
                                                     <ul class="list-unstyled mb-2 small">
                                                         <?php if (isset($detail_items[$pesanan['id_pesanan']])): ?>
@@ -231,48 +242,31 @@ if (!empty($all_pesanan_ids)) {
                                                             <?php endforeach; ?>
                                                         <?php endif; ?>
                                                     </ul>
-
                                                     <?php if (!empty($pesanan['catatan'])): ?>
                                                         <div class="catatan-pesanan">
                                                             <strong><i class="fas fa-sticky-note"></i> Catatan:</strong>
                                                             <p><em><?= nl2br(htmlspecialchars($pesanan['catatan'])) ?></em></p>
                                                         </div>
                                                     <?php endif; ?>
-
-                                                    <p class="card-text">
-                                                        <strong>Total:</strong> Rp
-                                                        <?= number_format($pesanan['total_harga']) ?><br>
+                                                    <p class="card-text mt-2"><strong>Total:</strong> Rp <?= number_format($pesanan['total_harga']) ?><br>
                                                         <strong>Waktu:</strong>
                                                         <?= date('H:i', strtotime($pesanan['tgl_pesanan'])) ?>
                                                     </p>
 
-                                                    <button type="button" class="btn btn-info btn-sm" data-bs-toggle="modal"
-                                                        data-bs-target="#buktiBayarModal"
-                                                        data-bukti-bayar="<?= htmlspecialchars($pesanan['bukti_pembayaran']) ?>">
-                                                        Lihat Bukti
-                                                    </button>
-                                                    <form method="POST" class="d-inline"
-                                                        onsubmit="return confirm('Anda yakin pembayaran ini valid?');">
-                                                        <input type="hidden" name="id_pesanan"
-                                                            value="<?= $pesanan['id_pesanan'] ?>">
-                                                        <button type="submit" name="validasi_pesanan"
-                                                            class="btn btn-success btn-sm">Validasi</button>
-                                                    </form>
-                                                    <form method="POST" class="d-inline"
-                                                        onsubmit="return confirm('Anda yakin ingin MEMBATALKAN pesanan ini?');">
-                                                        <input type="hidden" name="id_pesanan"
-                                                            value="<?= $pesanan['id_pesanan'] ?>">
-                                                        <button type="submit" name="batalkan_pesanan"
-                                                            class="btn btn-danger btn-sm">Batalkan</button>
-                                                    </form>
-
+                                                    <div class="action-buttons" id="actions-<?= htmlspecialchars($pesanan['id_pesanan']) ?>">
+                                                        <?php if ($pesanan['status_pesanan'] == 'menunggu_konfirmasi'): ?>
+                                                            <button type="button" class="btn btn-info btn-sm" data-bs-toggle="modal" data-bs-target="#buktiBayarModal" data-bukti-bayar="<?= htmlspecialchars($pesanan['bukti_pembayaran']) ?>">Bukti</button>
+                                                            <form method="POST" class="d-inline" onsubmit="return confirm('Validasi pesanan ini?');"><input type="hidden" name="id_pesanan" value="<?= $pesanan['id_pesanan'] ?>"><button type="submit" name="validasi_pesanan" class="btn btn-success btn-sm">Validasi</button></form>
+                                                            <form method="POST" class="d-inline" onsubmit="return confirm('Anda yakin ingin MEMBATALKAN pesanan ini?');"><input type="hidden" name="id_pesanan" value="<?= $pesanan['id_pesanan'] ?>"><button type="submit" name="batalkan_pesanan" class="btn btn-danger btn-sm">Batalkan</button></form>
+                                                        <?php else: // Menunggu Pembayaran 
+                                                        ?>
+                                                            <small class="text-muted">Menunggu pelanggan mengupload bukti pembayaran.</small>
+                                                        <?php endif; ?>
+                                                    </div>
                                                 </div>
                                             </div>
-                                        <?php endforeach; ?>
-                                    <?php else: ?>
-                                        <p class="text-center text-muted">Tidak ada pesanan online yang menunggu konfirmasi.
-                                        </p>
-                                    <?php endif; ?>
+                                    <?php endforeach;
+                                    endif; ?>
                                 </div>
                             </div>
                         </div>
@@ -292,6 +286,12 @@ if (!empty($all_pesanan_ids)) {
                                                         class="badge bg-<?= $is_pending ? 'danger' : 'primary' ?>"><?= ucfirst($antrean['status_pesanan']) ?></span>
                                                 </div>
                                                 <div class="card-body">
+
+                                                    <h6 class="card-subtitle mb-2 text-muted">
+                                                        <?= htmlspecialchars($pesanan['id_pesanan']) ?>
+                                                    </h6>
+                                                    <h6 class="card-subtitle mb-2 text-muted"><?= htmlspecialchars($pesanan['jenis_pesanan']) ?></h6>
+
                                                     <ul class="list-unstyled mb-2 small">
                                                         <?php if (isset($detail_items[$antrean['id_pesanan']])): ?>
                                                             <?php foreach ($detail_items[$antrean['id_pesanan']] as $item): ?>
@@ -342,6 +342,10 @@ if (!empty($all_pesanan_ids)) {
                                                     <span class="badge bg-success">Siap Diambil</span>
                                                 </div>
                                                 <div class="card-body">
+                                                    <h6 class="card-subtitle mb-2 text-muted">
+                                                        <?= htmlspecialchars($pesanan['id_pesanan']) ?>
+                                                    </h6>
+                                                    <h6 class="card-subtitle mb-2 text-muted"><?= htmlspecialchars($pesanan['jenis_pesanan']) ?></h6>
                                                     <ul class="list-unstyled mb-2 small">
                                                         <?php if (isset($detail_items[$siap['id_pesanan']])): ?>
                                                             <?php foreach ($detail_items[$siap['id_pesanan']] as $item): ?>
@@ -407,6 +411,75 @@ if (!empty($all_pesanan_ids)) {
             const gambarModal = buktiBayarModal.querySelector('#gambarBuktiBayar');
             // PASTIKAN PATH INI SESUAI DENGAN LOKASI UPLOAD ANDA
             gambarModal.src = '../../assets/img/bukti_bayar/' + namaFileBukti;
+
+
+            const pesananDiHalaman = document.querySelectorAll('[id^="pesanan-"]');
+            let idsToWatch = Array.from(pesananDiHalaman).map(card => card.id.replace('pesanan-', ''));
+
+            async function checkOrderStatus() {
+                if (idsToWatch.length === 0) {
+                    clearInterval(statusInterval);
+                    return;
+                }
+                try {
+                    const response = await fetch('../api/api_cek_status_pesanan.php', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({
+                            ids: idsToWatch
+                        })
+                    });
+                    const statuses = await response.json();
+
+                    for (const id in statuses) {
+                        const newStatus = statuses[id];
+                        const cardElement = document.getElementById('pesanan-' + id);
+                        if (!cardElement) continue;
+
+                        const currentStatusLabel = document.getElementById('status-label-' + id);
+                        const currentStatusText = currentStatusLabel.textContent.trim().replace(' ', '_');
+
+                        if (newStatus !== currentStatusText) {
+                            // Jika status berubah dari 'menunggu_pembayaran' ke 'menunggu_konfirmasi'
+                            if (newStatus === 'menunggu_konfirmasi') {
+                                updateCardToValidatable(cardElement, id);
+                            } else { // Jika status berubah menjadi lainnya (misal: dibatalkan)
+                                disableCard(cardElement, newStatus);
+                                idsToWatch = idsToWatch.filter(watchId => watchId !== id);
+                            }
+                        }
+                    }
+                } catch (error) {
+                    console.error("Gagal memeriksa status:", error);
+                }
+            }
+
+            function updateCardToValidatable(card, id) {
+                // Update label status
+                const label = document.getElementById('status-label-' + id);
+                label.textContent = 'menunggu konfirmasi';
+                label.className = 'badge bg-info'; // Ganti warna jadi biru
+
+                // Ganti isi tombol aksi dengan tombol validasi lengkap
+                // NOTE: Anda perlu mengambil `bukti_pembayaran` dari API atau memuat ulang bagian ini
+                // Cara termudah adalah memuat ulang halaman untuk mendapat data bukti bayar yang baru
+                alert(`Pesanan #${id} telah dikonfirmasi oleh pelanggan dan siap divalidasi. Halaman akan dimuat ulang.`);
+                window.location.reload();
+            }
+
+            function disableCard(card, newStatus) {
+                card.style.opacity = '0.6';
+                card.style.pointerEvents = 'none';
+                const statusLabel = document.getElementById('status-label-' + card.id.replace('pesanan-', ''));
+                statusLabel.className = 'badge bg-danger';
+                statusLabel.textContent = newStatus;
+            }
+
+            if (idsToWatch.length > 0) {
+                const statusInterval = setInterval(checkOrderStatus, 10000); // Cek setiap 10 detik
+            }
         });
     </script>
 </body>
