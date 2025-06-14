@@ -8,7 +8,27 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['cart_data'])) {
     $catatan = trim($_POST['catatan'] ?? '');
     $cart_data = json_decode($_POST['cart_data'], true);
     $jenis_pesanan = $_POST['jenis_pesanan'] ?? 'take_away'; // Default ke 'take_away' jika tidak ada
-        
+    
+    $is_nomor_valid = true;
+    // Cek apakah hanya berisi angka
+    if (!ctype_digit($no_telepon)) {
+        $is_nomor_valid = false;
+    }
+    // Cek panjangnya antara 12 dan 13 digit
+    $panjang_nomor = strlen($no_telepon);
+    if ($panjang_nomor < 12 || $panjang_nomor > 13) {
+        $is_nomor_valid = false;
+    }
+
+    if (!$is_nomor_valid) {
+        // Jika tidak valid, siapkan notifikasi error dan kembalikan ke keranjang
+        $_SESSION['notif_cart'] = [
+            'pesan' => 'Format nomor telepon tidak valid. Harap gunakan 12-13 digit angka.', 
+            'tipe' => 'danger'
+        ];
+        header('Location: keranjang.php');
+        exit;
+    }
 
     if (empty($nama_pemesan) || empty($no_telepon) || empty($cart_data) || json_last_error() !== JSON_ERROR_NONE) {
         $_SESSION['notif_cart'] = ['pesan' => 'Data tidak lengkap. Harap isi semua kolom.', 'tipe' => 'danger'];

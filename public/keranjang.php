@@ -246,9 +246,16 @@ include 'includes/header.php';
                 </div>
                 <div class="input-group">
                     <i data-feather="phone"></i>
-                    <input type="tel" name="no_telepon" placeholder="Nomor Telepon / WA Aktif" required pattern="[0-9]+"
-                        inputmode="numeric">
+                    <input
+                        type="tel"
+                        name="no_telepon"
+                        placeholder="08XXXXXXXXX"
+                        required
+                        maxlength="13"
+                        pattern="08[0-9]{8,11}"
+                        title="Nomor telepon harus dimulai dengan 08 dan terdiri dari 10 hingga 13 digit angka.">
                 </div>
+
 
                 <div class="input-group">
                     <i data-feather="list"></i>
