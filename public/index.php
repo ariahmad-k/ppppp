@@ -69,22 +69,26 @@ if (!$result_produk) {
 <section id="menu" class="menu">
     <h2><span>Menu</span> Kami</h2>
     <p>Berikut adalah beberapa menu andalan kami. Lihat menu selengkapnya dan pesan sekarang!</p>
-    <div class="row">
-        <?php while ($row = mysqli_fetch_assoc($result_produk)) : ?>
-
-        <div class = "menu-container">
-            <div class="menu-card">
-
-                <img src="../backend/assets/img/produk/<?= htmlspecialchars($row['poto_produk'] ?? 'default.jpg') ?>"
-                    alt="<?= htmlspecialchars($row['nama_produk'] ?? 'Gambar Produk') ?>"
-                    class="menu-card-img">
-
-                <h3 class="menu-card-title">- <?= htmlspecialchars($row['nama_produk'] ?? 'Nama Produk') ?> -</h3>
-
-                <p class="menu-card-price">Rp <?= number_format($row['harga'] ?? 0, 0, ',', '.') ?></p>
+    <div class="menu-nav-wrapper">
+        <button class="menu-nav-arrow left" aria-label="Scroll Kiri">&#x2039;</button>
+        <div class="menu-horizontal-scroll">
+            <?php while ($row = mysqli_fetch_assoc($result_produk)) : ?>
+            <div class="menu-card-horizontal">
+                <div class="menu-card-horizontal-inner">
+                    <img src="../backend/assets/img/produk/<?= htmlspecialchars($row['poto_produk'] ?? 'default.jpg') ?>"
+                        alt="<?= htmlspecialchars($row['nama_produk'] ?? 'Gambar Produk') ?>"
+                        class="menu-card-img">
+                    <div class="menu-card-horizontal-content">
+                        <div class="menu-card-horizontal-label">Menu</div>
+                        <h3 class="menu-card-title"><?= htmlspecialchars($row['nama_produk'] ?? 'Nama Produk') ?></h3>
+                        <p class="menu-card-price">Rp <?= number_format($row['harga'] ?? 0, 0, ',', '.') ?></p>
+                    </div>
+                    <button class="menu-card-horizontal-plus"><span>+</span></button>
+                </div>
             </div>
+            <?php endwhile; ?>
         </div>
-        <?php endwhile; ?>
+        <button class="menu-nav-arrow right" aria-label="Scroll Kanan">&#x203A;</button>
     </div>
 </section>
 <section id = "faq" class ="faq">
@@ -157,3 +161,38 @@ if (!$result_produk) {
 <?php
 include 'includes/footer.php';
 ?>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+  const scrollContainer = document.querySelector('.menu-horizontal-scroll');
+  const btnLeft = document.querySelector('.menu-nav-arrow.left');
+  const btnRight = document.querySelector('.menu-nav-arrow.right');
+  const scrollAmount = 340; // Sesuaikan dengan lebar kartu
+
+  function updateArrowVisibility() {
+    // Toleransi 2px untuk floating point
+    if (scrollContainer.scrollLeft <= 2) {
+      btnLeft.classList.add('arrow-hidden');
+    } else {
+      btnLeft.classList.remove('arrow-hidden');
+    }
+    if (scrollContainer.scrollLeft + scrollContainer.clientWidth >= scrollContainer.scrollWidth - 2) {
+      btnRight.classList.add('arrow-hidden');
+    } else {
+      btnRight.classList.remove('arrow-hidden');
+    }
+  }
+
+  btnLeft.addEventListener('click', function() {
+    scrollContainer.scrollBy({ left: -scrollAmount, behavior: 'smooth' });
+  });
+  btnRight.addEventListener('click', function() {
+    scrollContainer.scrollBy({ left: scrollAmount, behavior: 'smooth' });
+  });
+
+  scrollContainer.addEventListener('scroll', updateArrowVisibility);
+  window.addEventListener('resize', updateArrowVisibility);
+  // Inisialisasi
+  setTimeout(updateArrowVisibility, 100);
+});
+</script>

@@ -1082,3 +1082,151 @@ footer .credit p {
 .progress-step.completed::after {
   background-color: #198754; /* Garis Hijau */
 }
+
+.menu-horizontal-scroll {
+  display: flex;
+  gap: 2.5rem;
+  overflow-x: auto;
+  padding: 2.5rem 0 2.5rem 1.5rem;
+  scroll-snap-type: x mandatory;
+  scrollbar-width: thin;
+  -webkit-overflow-scrolling: touch;
+}
+.menu-horizontal-scroll::-webkit-scrollbar {
+  height: 8px;
+}
+.menu-horizontal-scroll::-webkit-scrollbar-thumb {
+  background: #e0e0e0;
+  border-radius: 4px;
+}
+.menu-card-horizontal {
+  flex: 0 0 340px;
+  background: #fff;
+  border-radius: 2.2rem;
+  box-shadow: 0 4px 24px rgba(0,0,0,0.10);
+  display: flex;
+  align-items: stretch;
+  min-height: 440px;
+  position: relative;
+  scroll-snap-align: start;
+  transition: box-shadow 0.2s, transform 0.2s;
+}
+.menu-card-horizontal-inner {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  width: 100%;
+  padding: 2.2rem 2rem 2.2rem 2rem;
+  position: relative;
+}
+.menu-card-horizontal:hover {
+  box-shadow: 0 8px 32px rgba(0,0,0,0.16);
+  transform: translateY(-6px) scale(1.03);
+}
+.menu-card-img {
+  width: 100%;
+  max-height: 180px;
+  object-fit: cover;
+  border-radius: 1.2rem;
+  margin-bottom: 1.5rem;
+  background: #f5f5f7;
+}
+.menu-card-horizontal-content {
+  flex: 1 1 auto;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+}
+.menu-card-horizontal-label {
+  font-size: 1.05rem;
+  color: #888;
+  margin-bottom: 0.5rem;
+  font-weight: 500;
+}
+.menu-card-title {
+  font-size: 1.35rem;
+  font-weight: 700;
+  margin-bottom: 0.7rem;
+  color: #222;
+}
+.menu-card-price {
+  font-size: 1.1rem;
+  color: #666;
+  font-weight: 600;
+  margin-top: auto;
+}
+.menu-card-horizontal-plus {
+  position: absolute;
+  right: 1.2rem;
+  bottom: 1.2rem;
+  width: 2.4rem;
+  height: 2.4rem;
+  border-radius: 50%;
+  background: #222;
+  color: #fff;
+  border: none;
+  font-size: 1.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.10);
+  cursor: pointer;
+  transition: background 0.2s;
+}
+.menu-card-horizontal-plus:hover {
+  background: #2e4358;
+}
+@media (max-width: 600px) {
+  .menu-card-horizontal {
+    flex: 0 0 85vw;
+    min-width: 260px;
+    min-height: 320px;
+  }
+  .menu-card-horizontal-inner {
+    padding: 1.2rem 1rem 1.2rem 1rem;
+  }
+}
+
+.menu-nav-arrow {
+  background: #e9e9ed;
+  border: none;
+  border-radius: 50%;
+  width: 48px;
+  height: 48px;
+  font-size: 2rem;
+  color: #555;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 2;
+  font-weight: bold;
+  transition: background 0.2s, color 0.2s, opacity 0.3s;
+  box-shadow: none;
+  outline: none;
+  opacity: 1;
+}
+.menu-nav-arrow.arrow-hidden {
+  opacity: 0;
+  pointer-events: none;
+}
+.menu-nav-arrow:hover {
+  background: #d4d4da;
+  color: #222;
+}
+.menu-nav-arrow:active {
+  background: #cccccc;
+}
+.menu-nav-arrow.left {
+  margin-right: 1rem;
+}
+.menu-nav-arrow.right {
+  margin-left: 1rem;
+}
+@media (max-width: 600px) {
+  .menu-nav-arrow {
+    width: 36px;
+    height: 36px;
+    font-size: 1.5rem;
+  }
+}
