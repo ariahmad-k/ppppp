@@ -205,6 +205,8 @@ body {
   position: relative;
   -webkit-mask-image: linear-gradient(rgba(0, 0, 0, 1) 85%, rgba(0, 0, 0, 0));
   mask-image: linear-gradient(rgba(0, 0, 0, 1) 85%, rgba(0, 0, 0, 0));
+  opacity: 1;
+  transform: none;
 }
 
 /* .hero::after {
@@ -308,6 +310,9 @@ body {
 .contact,
 .faq {
   padding: 8rem 7% 1.4rem;
+  opacity: 0;
+  transform: translateY(50px);
+  transition: all 1s ease-out;
 }
 
 .about h2,
@@ -1187,6 +1192,19 @@ footer .credit p {
   }
 }
 
+.menu-nav-wrapper {
+  position: relative;
+  width: 100%;
+  margin-bottom: 2rem;
+}
+
+.menu-nav-buttons {
+  display: flex;
+  justify-content: center;
+  gap: 1rem;
+  margin-top: 1rem;
+}
+
 .menu-nav-arrow {
   background: #e9e9ed;
   border: none;
@@ -1206,27 +1224,53 @@ footer .credit p {
   outline: none;
   opacity: 1;
 }
+
 .menu-nav-arrow.arrow-hidden {
   opacity: 0;
   pointer-events: none;
 }
+
 .menu-nav-arrow:hover {
   background: #d4d4da;
   color: #222;
 }
+
 .menu-nav-arrow:active {
   background: #cccccc;
 }
-.menu-nav-arrow.left {
-  margin-right: 1rem;
-}
-.menu-nav-arrow.right {
-  margin-left: 1rem;
-}
+
 @media (max-width: 600px) {
   .menu-nav-arrow {
     width: 36px;
     height: 36px;
     font-size: 1.5rem;
   }
+}
+
+/* Scroll Animation Styles */
+.scroll-section {
+  opacity: 0;
+  transform: translateY(50px);
+  transition: all 1s ease-out;
+}
+
+.scroll-section.visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.scroll-section.fade-left {
+  transform: translateX(-50px);
+}
+
+.scroll-section.fade-right {
+  transform: translateX(50px);
+}
+
+.scroll-section.fade-up {
+  transform: translateY(50px);
+}
+
+.scroll-section.fade-down {
+  transform: translateY(-50px);
 }

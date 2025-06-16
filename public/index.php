@@ -70,7 +70,6 @@ if (!$result_produk) {
     <h2><span>Menu</span> Kami</h2>
     <p>Berikut adalah beberapa menu andalan kami. Lihat menu selengkapnya dan pesan sekarang!</p>
     <div class="menu-nav-wrapper">
-        <button class="menu-nav-arrow left" aria-label="Scroll Kiri">&#x2039;</button>
         <div class="menu-horizontal-scroll">
             <?php while ($row = mysqli_fetch_assoc($result_produk)) : ?>
             <div class="menu-card-horizontal">
@@ -88,6 +87,9 @@ if (!$result_produk) {
             </div>
             <?php endwhile; ?>
         </div>
+    </div>
+    <div class="menu-nav-buttons">
+        <button class="menu-nav-arrow left" aria-label="Scroll Kiri">&#x2039;</button>
         <button class="menu-nav-arrow right" aria-label="Scroll Kanan">&#x203A;</button>
     </div>
 </section>
@@ -164,13 +166,13 @@ include 'includes/footer.php';
 
 <script>
 document.addEventListener('DOMContentLoaded', function() {
+  // Menu scroll functionality
   const scrollContainer = document.querySelector('.menu-horizontal-scroll');
   const btnLeft = document.querySelector('.menu-nav-arrow.left');
   const btnRight = document.querySelector('.menu-nav-arrow.right');
-  const scrollAmount = 340; // Sesuaikan dengan lebar kartu
+  const scrollAmount = 340;
 
   function updateArrowVisibility() {
-    // Toleransi 2px untuk floating point
     if (scrollContainer.scrollLeft <= 2) {
       btnLeft.classList.add('arrow-hidden');
     } else {
@@ -192,7 +194,52 @@ document.addEventListener('DOMContentLoaded', function() {
 
   scrollContainer.addEventListener('scroll', updateArrowVisibility);
   window.addEventListener('resize', updateArrowVisibility);
-  // Inisialisasi
   setTimeout(updateArrowVisibility, 100);
+
+  // Enhanced scroll animations for all sections
+  const sections = document.querySelectorAll('section');
+  
+  // Add initial styles to sections
+  sections.forEach(section => {
+    section.style.opacity = '0';
+    section.style.transform = 'translateY(50px)';
+    section.style.transition = 'all 0.8s ease-out';
+  });
+
+  const observerOptions = {
+    root: null,
+    rootMargin: '0px',
+    threshold: 0.15
+  };
+
+  const observer = new IntersectionObserver((entries, observer) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        entry.target.style.opacity = '1';
+        entry.target.style.transform = 'translateY(0)';
+        observer.unobserve(entry.target);
+      }
+    });
+  }, observerOptions);
+
+  sections.forEach(section => {
+    observer.observe(section);
+  });
+
+  // Smooth scroll for navigation links
+  document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+    anchor.addEventListener('click', function (e) {
+      e.preventDefault();
+      const targetId = this.getAttribute('href');
+      const targetElement = document.querySelector(targetId);
+      
+      if (targetElement) {
+        targetElement.scrollIntoView({
+          behavior: 'smooth',
+          block: 'start'
+        });
+      }
+    });
+  });
 });
 </script>
